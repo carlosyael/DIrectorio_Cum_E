@@ -1,5 +1,8 @@
 using Serilog;
+using TableroDirectorio.Data;
+using TableroDirectorio.Data.Repositories;
 using TableroDirectorio.Helpers;
+using TableroDirectorio.Services;
 using TableroDirectorio.UI;
 
 namespace TableroDirectorio;
@@ -7,7 +10,7 @@ namespace TableroDirectorio;
 internal static class Program
 {
     [STAThread]
-    static void Main()
+    static void Main(string[] args)
     {
         // Configure Serilog to write to a local log file
         Log.Logger = new LoggerConfiguration()
@@ -21,6 +24,23 @@ internal static class Program
 
         try
         {
+            if (args.Length > 0 && args[0].Equals("--reset-password", StringComparison.OrdinalIgnoreCase))
+            {
+                var newPassword = args.Length > 1 && !string.IsNullOrWhiteSpace(args[1]) ? args[1] : "admin123";
+                var factory = new SqliteConnectionFactory();
+                var initializer = new DatabaseInitializer(factory);
+                initializer.Initialize();
+                var repo = new ConfigRepository(factory);
+                var service = new ConfigService(repo);
+                service.ChangeMasterPassword(newPassword);
+                MessageBox.Show(
+                    $"La contraseña de administrador se ha restablecido exitosamente a:\n\n{newPassword}\n\nYa puedes ingresar al módulo de Administración.",
+                    "Contraseña Restablecida",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
             Log.Information("Application starting...");
 
             ApplicationConfiguration.Initialize();
