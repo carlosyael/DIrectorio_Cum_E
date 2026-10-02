@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>TableroDirectorio</RootNamespace>
     <AssemblyName>TableroDirectorio</AssemblyName>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Description>Directorio de Tableros - Gerencia de Cumplimiento Ético</Description>
     <Company>Dirección de Cumplimiento Ético</Company>
     <Product>Tablero Directorio Portable</Product>

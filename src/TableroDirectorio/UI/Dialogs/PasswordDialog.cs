@@ -9,7 +9,7 @@ public class PasswordDialog : Form
 
     public PasswordDialog()
     {
-        Text = "Acceso a Configuración";
+        Text = "Autenticación de Administrador";
         Size = new Size(400, 200);
         StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -20,7 +20,7 @@ public class PasswordDialog : Form
 
         var label = new Label
         {
-            Text = "🔒 Ingrese la contraseña maestra:",
+            Text = "Ingrese la contraseña de administración:",
             Font = DarkTheme.CardTitleFont,
             ForeColor = DarkTheme.TextPrimary,
             AutoSize = true,

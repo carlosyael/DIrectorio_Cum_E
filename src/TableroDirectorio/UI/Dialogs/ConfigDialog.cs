@@ -18,7 +18,7 @@ public class ConfigDialog : Form
     public ConfigDialog(ConfigPresenter presenter)
     {
         _presenter = presenter;
-        Text = "⚙️ Panel de Configuración & Gestión de Tableros";
+        Text = "Panel de Administración & Gestión de Tableros";
         Size = new Size(820, 640);
         MinimumSize = new Size(750, 550);
         StartPosition = FormStartPosition.CenterParent;
@@ -37,10 +37,10 @@ public class ConfigDialog : Form
             Padding = new Padding(15, 6, 15, 0)
         };
 
-        _tabBoardsBtn = CreateTabButton("📋 Gestión de Tableros (Drag & Drop)", true);
+        _tabBoardsBtn = CreateTabButton("Gestión de Tableros (Arrastrar y Soltar)", true);
         _tabBoardsBtn.Click += (_, _) => SwitchTab(true);
 
-        _tabGeneralBtn = CreateTabButton("🎨 Selector de Tema & Seguridad", false);
+        _tabGeneralBtn = CreateTabButton("Información General & Seguridad", false);
         _tabGeneralBtn.Click += (_, _) => SwitchTab(false);
 
         tabContainer.Controls.Add(_tabBoardsBtn);

@@ -9,16 +9,15 @@ public class DashboardPanel : UserControl
     private readonly DashboardPresenter _presenter;
     private readonly Label _titleLabel;
     private readonly Label _subtitleLabel;
-    private readonly Label _bannerLabel;
-    private readonly Label _counterNumber;
-    private readonly Label _counterText;
-    private readonly SearchBar _searchBar;
+    private readonly BannerPillControl _bannerPill;
+    private readonly CounterCardControl _counterCard;
+    private readonly SearchBoxControl _searchBox;
     private readonly FlowLayoutPanel _cardsContainer;
+    private readonly Panel _topBar;
     private readonly Panel _headerPanel;
     private readonly Panel _counterPanel;
-    private readonly Panel _counterCard;
     private readonly Panel _searchPanel;
-    private readonly Panel _searchInner;
+    private readonly ComboBox _themeSelector;
 
     public event EventHandler? ConfigRequested;
 
@@ -29,23 +28,87 @@ public class DashboardPanel : UserControl
         AutoScroll = true;
         Padding = new Padding(0, 0, 0, 40);
 
-        // Header panel
+        // 1. TOP NAVBAR (Theme Selector + Config Button)
+        _topBar = new Panel
+        {
+            Dock = DockStyle.Top,
+            Height = 52,
+            BackColor = Color.Transparent,
+            Padding = new Padding(24, 8, 24, 8)
+        };
+
+        var orgLabel = new Label
+        {
+            Text = "Portal Institucional",
+            Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
+            ForeColor = DarkTheme.TextMuted,
+            AutoSize = false,
+            Width = 200,
+            Dock = DockStyle.Left,
+            TextAlign = ContentAlignment.MiddleLeft
+        };
+
+        var configBtn = CreateBarButton("⚙ Administración");
+        configBtn.Click += (_, _) => ConfigRequested?.Invoke(this, EventArgs.Empty);
+
+        _themeSelector = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9.5f),
+            Width = 175,
+            Height = 32,
+            Cursor = Cursors.Hand
+        };
+        foreach (var theme in ThemeManager.ThemeNames)
+        {
+            _themeSelector.Items.Add(theme);
+        }
+        _themeSelector.SelectedItem = ThemeManager.Current.Name;
+        _themeSelector.SelectedIndexChanged += OnThemeChangedByUser;
+
+        var themeLabel = new Label
+        {
+            Text = "Tema:",
+            Font = new Font("Segoe UI", 9.5f),
+            ForeColor = DarkTheme.TextMuted,
+            AutoSize = true,
+            TextAlign = ContentAlignment.MiddleRight,
+            Margin = new Padding(0, 7, 6, 0)
+        };
+
+        var rightPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Right,
+            AutoSize = true,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
+            BackColor = Color.Transparent
+        };
+        rightPanel.Controls.Add(themeLabel);
+        rightPanel.Controls.Add(_themeSelector);
+        rightPanel.Controls.Add(configBtn);
+
+        _topBar.Controls.Add(orgLabel);
+        _topBar.Controls.Add(rightPanel);
+
+        // 2. HEADER
         _headerPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 145,
+            Height = 125,
             BackColor = Color.Transparent,
-            Padding = new Padding(20, 35, 20, 10)
+            Padding = new Padding(20, 15, 20, 10)
         };
 
         _titleLabel = new Label
         {
-            Text = $"🛡️ {_presenter.GetTitle()}",
+            Text = _presenter.GetTitle(),
             Font = DarkTheme.TitleFont,
             AutoSize = false,
             TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Top,
-            Height = 55
+            Height = 50
         };
 
         _subtitleLabel = new Label
@@ -55,77 +118,30 @@ public class DashboardPanel : UserControl
             AutoSize = false,
             TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Top,
-            Height = 30
+            Height = 28
         };
 
+        _bannerPill = new BannerPillControl
+        {
+            Dock = DockStyle.Top,
+            BannerText = _presenter.GetBanner()
+        };
+
+        _headerPanel.Controls.Add(_bannerPill);
         _headerPanel.Controls.Add(_subtitleLabel);
         _headerPanel.Controls.Add(_titleLabel);
 
-        // Config button (gear icon)
-        var configButton = new Button
-        {
-            Text = "⚙️",
-            FlatStyle = FlatStyle.Flat,
-            BackColor = Color.Transparent,
-            ForeColor = DarkTheme.TextMuted,
-            Font = new Font("Segoe UI Emoji", 16f),
-            Size = new Size(45, 45),
-            Cursor = Cursors.Hand,
-            Anchor = AnchorStyles.Top | AnchorStyles.Right,
-            Location = new Point(0, 10)
-        };
-        configButton.FlatAppearance.BorderSize = 0;
-        configButton.FlatAppearance.MouseOverBackColor = Color.FromArgb(50, 255, 255, 255);
-        configButton.Click += (_, _) => ConfigRequested?.Invoke(this, EventArgs.Empty);
-        _headerPanel.Controls.Add(configButton);
-
-        // Banner panel
-        _bannerLabel = new Label
-        {
-            Text = _presenter.GetBanner(),
-            Font = DarkTheme.BannerFont,
-            AutoSize = false,
-            TextAlign = ContentAlignment.MiddleCenter,
-            Height = 38,
-            Dock = DockStyle.Top,
-            Padding = new Padding(20, 0, 20, 0)
-        };
-
-        // Counter panel
+        // 3. COUNTER PANEL
         _counterPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 90,
+            Height = 110,
             BackColor = Color.Transparent,
-            Padding = new Padding(0, 10, 0, 10)
+            Padding = new Padding(0, 8, 0, 8)
         };
 
-        _counterCard = new Panel
-        {
-            Size = new Size(200, 68),
-        };
-
-        _counterNumber = new Label
-        {
-            Text = "0",
-            Font = DarkTheme.CounterFont,
-            TextAlign = ContentAlignment.MiddleCenter,
-            Dock = DockStyle.Top,
-            Height = 44
-        };
-
-        _counterText = new Label
-        {
-            Text = "Tableros Disponibles",
-            Font = DarkTheme.CounterLabelFont,
-            TextAlign = ContentAlignment.TopCenter,
-            Dock = DockStyle.Fill
-        };
-
-        _counterCard.Controls.Add(_counterText);
-        _counterCard.Controls.Add(_counterNumber);
+        _counterCard = new CounterCardControl();
         _counterPanel.Controls.Add(_counterCard);
-
         _counterPanel.Resize += (_, _) =>
         {
             _counterCard.Location = new Point(
@@ -133,30 +149,29 @@ public class DashboardPanel : UserControl
                 (_counterPanel.Height - _counterCard.Height) / 2);
         };
 
-        // Search panel
+        // 4. SEARCH PANEL
         _searchPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 55,
-            BackColor = Color.Transparent,
-            Padding = new Padding(60, 5, 60, 5)
+            Height = 56,
+            BackColor = Color.Transparent
         };
 
-        _searchBar = new SearchBar
+        _searchBox = new SearchBoxControl { Width = 680 };
+        _searchBox.SearchTextChanged += (_, _) =>
         {
-            Dock = DockStyle.Fill,
+            var items = _presenter.Search(_searchBox.Query).ToList();
+            PopulateCards(items);
         };
-        _searchBar.TextChanged += OnSearchTextChanged;
-
-        _searchInner = new Panel
+        _searchPanel.Controls.Add(_searchBox);
+        _searchPanel.Resize += (_, _) =>
         {
-            Dock = DockStyle.Fill,
-            Padding = new Padding(15, 8, 15, 8)
+            _searchBox.Location = new Point(
+                Math.Max(20, (_searchPanel.Width - _searchBox.Width) / 2),
+                (_searchPanel.Height - _searchBox.Height) / 2);
         };
-        _searchInner.Controls.Add(_searchBar);
-        _searchPanel.Controls.Add(_searchInner);
 
-        // Cards container
+        // 5. CARDS CONTAINER
         _cardsContainer = new FlowLayoutPanel
         {
             Dock = DockStyle.Top,
@@ -164,23 +179,27 @@ public class DashboardPanel : UserControl
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             WrapContents = true,
             BackColor = Color.Transparent,
-            Padding = new Padding(25, 15, 25, 15)
+            Padding = new Padding(30, 20, 30, 20)
         };
 
         // Add controls in reverse dock order
         Controls.Add(_cardsContainer);
         Controls.Add(_searchPanel);
         Controls.Add(_counterPanel);
-        Controls.Add(_bannerLabel);
         Controls.Add(_headerPanel);
-
-        _headerPanel.Resize += (_, _) =>
-        {
-            configButton.Location = new Point(_headerPanel.Width - 60, 10);
-        };
+        Controls.Add(_topBar);
 
         ThemeManager.ThemeChanged += ApplyTheme;
         ApplyTheme();
+    }
+
+    private void OnThemeChangedByUser(object? sender, EventArgs e)
+    {
+        if (_themeSelector.SelectedItem is string themeName)
+        {
+            ThemeManager.SetTheme(themeName);
+            _presenter.SaveTheme(themeName);
+        }
     }
 
     public void ApplyTheme()
@@ -188,14 +207,14 @@ public class DashboardPanel : UserControl
         BackColor = DarkTheme.BackgroundMid;
         _titleLabel.ForeColor = DarkTheme.TextPrimary;
         _subtitleLabel.ForeColor = DarkTheme.TextSecondary;
-        _bannerLabel.ForeColor = DarkTheme.TextSecondary;
-        _bannerLabel.BackColor = Color.FromArgb(20, DarkTheme.TextPrimary.R, DarkTheme.TextPrimary.G, DarkTheme.TextPrimary.B);
-        _counterCard.BackColor = Color.FromArgb(20, DarkTheme.TextPrimary.R, DarkTheme.TextPrimary.G, DarkTheme.TextPrimary.B);
-        _counterNumber.ForeColor = DarkTheme.AccentSky;
-        _counterText.ForeColor = DarkTheme.TextMuted;
-        _searchInner.BackColor = DarkTheme.InputBackground;
-        _searchBar.BackColor = DarkTheme.InputBackground;
-        _searchBar.ForeColor = DarkTheme.TextMuted;
+        _themeSelector.BackColor = DarkTheme.InputBackground;
+        _themeSelector.ForeColor = DarkTheme.TextPrimary;
+
+        if (_themeSelector.SelectedItem?.ToString() != ThemeManager.Current.Name)
+        {
+            _themeSelector.SelectedItem = ThemeManager.Current.Name;
+        }
+
         Invalidate(true);
     }
 
@@ -207,9 +226,9 @@ public class DashboardPanel : UserControl
 
     public void RefreshData()
     {
-        _titleLabel.Text = $"🛡️ {_presenter.GetTitle()}";
+        _titleLabel.Text = _presenter.GetTitle();
         _subtitleLabel.Text = _presenter.GetSubtitle();
-        _bannerLabel.Text = _presenter.GetBanner();
+        _bannerPill.BannerText = _presenter.GetBanner();
         ApplyTheme();
         LoadDashboard();
     }
@@ -227,17 +246,27 @@ public class DashboardPanel : UserControl
             _cardsContainer.Controls.Add(card);
         }
 
-        _counterNumber.Text = items.Count.ToString();
+        _counterCard.Count = items.Count;
         _cardsContainer.ResumeLayout();
     }
 
-    private void OnSearchTextChanged(object? sender, EventArgs e)
+    private static Button CreateBarButton(string text)
     {
-        if (_searchBar.IsSuppressed)
-            return;
-
-        var query = _searchBar.SearchText;
-        var items = _presenter.Search(query).ToList();
-        PopulateCards(items);
+        var btn = new Button
+        {
+            Text = text,
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Color.Transparent,
+            ForeColor = DarkTheme.TextPrimary,
+            Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
+            Height = 32,
+            AutoSize = true,
+            Padding = new Padding(12, 0, 12, 0),
+            Cursor = Cursors.Hand,
+            Margin = new Padding(10, 0, 0, 0)
+        };
+        btn.FlatAppearance.BorderSize = 1;
+        btn.FlatAppearance.BorderColor = DarkTheme.InputBorder;
+        return btn;
     }
 }

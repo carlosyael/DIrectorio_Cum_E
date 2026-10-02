@@ -196,11 +196,10 @@ public class BoardOrderListBox : ListBox
         TextRenderer.DrawText(g, handleText, DarkTheme.CardBodyFont, handleRect,
             DarkTheme.TextMuted, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
 
-        // Icon
-        var iconText = DarkTheme.GetIcon(item.IconName);
-        var iconRect = new Rectangle(rect.X + 65, rect.Y, 32, rect.Height);
-        TextRenderer.DrawText(g, iconText, new Font("Segoe UI Emoji", 14f), iconRect,
-            DarkTheme.TextPrimary, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        // Vector Icon
+        var iconRect = new Rectangle(rect.X + 68, rect.Y + (rect.Height - 24) / 2, 24, 24);
+        var itemColor = DarkTheme.GetCardColor(item.ColorHex);
+        IconRenderer.DrawIcon(g, item.IconName, iconRect, itemColor);
 
         // Title
         var titleRect = new Rectangle(rect.X + 105, rect.Y + 4, rect.Width - 220, 22);

@@ -29,4 +29,6 @@ public class DashboardPresenter
     public string GetTitle() => _configService.GetAppTitle();
     public string GetSubtitle() => _configService.GetAppSubtitle();
     public string GetBanner() => _configService.GetBannerText();
+    public string GetTheme() => _configService.GetTheme();
+    public void SaveTheme(string theme) => _configService.SetTheme(theme);
 }

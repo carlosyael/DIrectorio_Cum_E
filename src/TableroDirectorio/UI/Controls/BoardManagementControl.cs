@@ -45,13 +45,13 @@ public class BoardManagementControl : UserControl
             BackColor = Color.Transparent
         };
 
-        var addBtn = CreateBtn("➕ Nuevo", DarkTheme.AccentGreen);
+        var addBtn = CreateBtn("+ Nuevo Tablero", DarkTheme.AccentGreen);
         addBtn.Click += OnAddClick;
 
-        var editBtn = CreateBtn("✏️ Editar", DarkTheme.AccentBlue);
+        var editBtn = CreateBtn("Editar", DarkTheme.AccentBlue);
         editBtn.Click += OnEditClick;
 
-        var deleteBtn = CreateBtn("🗑️ Eliminar", DarkTheme.AccentRed);
+        var deleteBtn = CreateBtn("Eliminar", DarkTheme.AccentRed);
         deleteBtn.Click += OnDeleteClick;
 
         var upBtn = CreateSmallBtn("▲");
@@ -59,6 +59,8 @@ public class BoardManagementControl : UserControl
 
         var downBtn = CreateSmallBtn("▼");
         downBtn.Click += (_, _) => _listBox.MoveSelectedDown();
+
+        _saveOrderButton = CreateBtn("Guardar Orden", DarkTheme.AccentSky);
         _saveOrderButton.ForeColor = Color.Black;
         _saveOrderButton.Click += OnSaveOrderClick;
         _saveOrderButton.Enabled = false;
@@ -77,7 +79,7 @@ public class BoardManagementControl : UserControl
         // Hint label
         var hintLabel = new Label
         {
-            Text = "👆 Arrastra y suelta para ordenar los tableros en el dashboard, o usa los botones ▲ y ▼.",
+            Text = "Arrastra y suelta elementos para definir el orden en el directorio, o utiliza los botones ▲ y ▼.",
             Font = DarkTheme.CardBodyFont,
             ForeColor = DarkTheme.TextMuted,
             Dock = DockStyle.Top,

@@ -130,7 +130,8 @@ public class DatabaseInitializer
             ('MasterPasswordHash', @Hash),
             ('AppTitle', 'Gerencia de Cumplimiento Ético'),
             ('AppSubtitle', 'Directorio de Tableros e Informaciones'),
-            ('BannerText', '🛡️ Centro de Analítica y Gestión de Riesgos')",
+            ('BannerText', 'Centro de Analítica y Gestión de Riesgos'),
+            ('AppTheme', 'Azul Medianoche')",
             new { Hash = defaultPasswordHash });
 
         Log.Information("Seeded default configuration.");
