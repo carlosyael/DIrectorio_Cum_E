@@ -38,43 +38,42 @@ public class BoardManagementControl : UserControl
         };
 
         // Header toolbar
-        var toolbar = new Panel
+        var toolbar = new FlowLayoutPanel
         {
             Dock = DockStyle.Top,
             Height = 44,
-            BackColor = Color.Transparent
+            BackColor = Color.Transparent,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false
         };
 
         var addBtn = CreateBtn("+ Nuevo Tablero", DarkTheme.AccentGreen);
+        addBtn.Margin = new Padding(0, 0, 8, 0);
         addBtn.Click += OnAddClick;
 
         var editBtn = CreateBtn("Editar", DarkTheme.AccentBlue);
+        editBtn.Margin = new Padding(0, 0, 8, 0);
         editBtn.Click += OnEditClick;
 
         var deleteBtn = CreateBtn("Eliminar", DarkTheme.AccentRed);
+        deleteBtn.Margin = new Padding(0, 0, 12, 0);
         deleteBtn.Click += OnDeleteClick;
 
         var upBtn = CreateSmallBtn("▲");
+        upBtn.Margin = new Padding(0, 0, 6, 0);
         upBtn.Click += (_, _) => _listBox.MoveSelectedUp();
 
         var downBtn = CreateSmallBtn("▼");
+        downBtn.Margin = new Padding(0, 0, 12, 0);
         downBtn.Click += (_, _) => _listBox.MoveSelectedDown();
 
         _saveOrderButton = CreateBtn("Guardar Orden", DarkTheme.AccentSky);
         _saveOrderButton.ForeColor = Color.Black;
+        _saveOrderButton.Margin = new Padding(0, 0, 0, 0);
         _saveOrderButton.Click += OnSaveOrderClick;
         _saveOrderButton.Enabled = false;
 
         toolbar.Controls.AddRange(new Control[] { addBtn, editBtn, deleteBtn, upBtn, downBtn, _saveOrderButton });
-
-        // Layout toolbar buttons
-        int x = 0;
-        addBtn.Location = new Point(x, 0); x += addBtn.Width + 8;
-        editBtn.Location = new Point(x, 0); x += editBtn.Width + 8;
-        deleteBtn.Location = new Point(x, 0); x += deleteBtn.Width + 12;
-        upBtn.Location = new Point(x, 0); x += upBtn.Width + 6;
-        downBtn.Location = new Point(x, 0); x += downBtn.Width + 12;
-        _saveOrderButton.Location = new Point(x, 0);
 
         // Hint label
         var hintLabel = new Label

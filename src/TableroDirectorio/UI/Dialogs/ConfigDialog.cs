@@ -29,20 +29,20 @@ public class ConfigDialog : Form
         ForeColor = DarkTheme.TextPrimary;
 
         // Top navigation tabs
-        var tabContainer = new Panel
+        var tabContainer = new FlowLayoutPanel
         {
             Dock = DockStyle.Top,
-            Height = 46,
+            Height = 48,
             BackColor = DarkTheme.BackgroundDark,
-            Padding = new Padding(24, 6, 24, 0)
+            Padding = new Padding(24, 6, 24, 0),
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false
         };
 
         _tabBoardsBtn = CreateTabButton("Gestión de Tableros (Arrastrar y Soltar)", true);
-        _tabBoardsBtn.Location = new Point(24, 6);
         _tabBoardsBtn.Click += (_, _) => SwitchTab(true);
 
         _tabGeneralBtn = CreateTabButton("Información General & Seguridad", false);
-        _tabGeneralBtn.Location = new Point(_tabBoardsBtn.Right + 8, 6);
         _tabGeneralBtn.Click += (_, _) => SwitchTab(false);
 
         tabContainer.Controls.Add(_tabBoardsBtn);
@@ -118,6 +118,7 @@ public class ConfigDialog : Form
 
         if (showBoards)
         {
+            _boardControl.BringToFront();
             _tabBoardsBtn.BackColor = DarkTheme.BackgroundMid;
             _tabBoardsBtn.ForeColor = DarkTheme.AccentSky;
             _tabGeneralBtn.BackColor = Color.Transparent;
@@ -125,6 +126,7 @@ public class ConfigDialog : Form
         }
         else
         {
+            _generalControl.BringToFront();
             _tabBoardsBtn.BackColor = Color.Transparent;
             _tabBoardsBtn.ForeColor = DarkTheme.TextMuted;
             _tabGeneralBtn.BackColor = DarkTheme.BackgroundMid;
@@ -153,9 +155,10 @@ public class ConfigDialog : Form
             ForeColor = isActive ? DarkTheme.AccentSky : DarkTheme.TextMuted,
             Font = DarkTheme.CardTitleFont,
             Cursor = Cursors.Hand,
-            Height = 40,
+            Height = 36,
             AutoSize = true,
-            Padding = new Padding(12, 0, 12, 0)
+            Padding = new Padding(14, 0, 14, 0),
+            Margin = new Padding(0, 0, 10, 0)
         };
         btn.FlatAppearance.BorderSize = 0;
         return btn;

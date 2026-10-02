@@ -54,6 +54,10 @@ public class GeneralConfigControl : UserControl
 
         UpdateInputWidths();
         Resize += (_, _) => UpdateInputWidths();
+        VisibleChanged += (_, _) =>
+        {
+            if (Visible) UpdateInputWidths();
+        };
     }
 
     private void UpdateInputWidths()
