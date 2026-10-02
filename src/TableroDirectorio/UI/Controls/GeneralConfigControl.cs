@@ -5,12 +5,14 @@ namespace TableroDirectorio.UI.Controls;
 
 public class GeneralConfigControl : UserControl
 {
+    private const int LeftMargin = 28;
     private readonly ConfigPresenter _presenter;
     private readonly TextBox _titleBox;
     private readonly TextBox _subtitleBox;
     private readonly TextBox _bannerBox;
     private readonly TextBox _newPasswordBox;
     private readonly TextBox _confirmPasswordBox;
+    private readonly List<TextBox> _boxes = new();
 
     public GeneralConfigControl(ConfigPresenter presenter)
     {
@@ -18,38 +20,49 @@ public class GeneralConfigControl : UserControl
         Dock = DockStyle.Fill;
         AutoScroll = true;
         BackColor = Color.Transparent;
-        Padding = new Padding(25, 20, 25, 20);
+        Padding = new Padding(LeftMargin, 20, LeftMargin, 20);
 
-        var y = 10;
-        const int inputWidth = 480;
+        var y = 20;
 
         // SECTION: INFORMACIÓN INSTITUCIONAL
         AddSectionHeader("Información Institucional", ref y);
 
         AddLabel("Título del Directorio", ref y);
-        _titleBox = AddTextBox(ref y, inputWidth);
+        _titleBox = AddTextBox(ref y);
         _titleBox.Text = presenter.GetAppTitle();
 
         AddLabel("Subtítulo", ref y);
-        _subtitleBox = AddTextBox(ref y, inputWidth);
+        _subtitleBox = AddTextBox(ref y);
         _subtitleBox.Text = presenter.GetAppSubtitle();
 
         AddLabel("Texto de Banner", ref y);
-        _bannerBox = AddTextBox(ref y, inputWidth);
+        _bannerBox = AddTextBox(ref y);
         _bannerBox.Text = presenter.GetBannerText();
 
-        y += 10;
+        y += 12;
 
         // SECTION: SEGURIDAD
         AddSectionHeader("Seguridad — Contraseña Maestra", ref y);
 
         AddLabel("Nueva Contraseña (dejar en blanco para mantener la actual)", ref y);
-        _newPasswordBox = AddTextBox(ref y, inputWidth);
+        _newPasswordBox = AddTextBox(ref y);
         _newPasswordBox.UseSystemPasswordChar = true;
 
         AddLabel("Confirmar Nueva Contraseña", ref y);
-        _confirmPasswordBox = AddTextBox(ref y, inputWidth);
+        _confirmPasswordBox = AddTextBox(ref y);
         _confirmPasswordBox.UseSystemPasswordChar = true;
+
+        UpdateInputWidths();
+        Resize += (_, _) => UpdateInputWidths();
+    }
+
+    private void UpdateInputWidths()
+    {
+        var targetWidth = Math.Max(360, Math.Min(700, ClientSize.Width - (LeftMargin * 2) - 24));
+        foreach (var box in _boxes)
+        {
+            box.Width = targetWidth;
+        }
     }
 
     public bool SaveChanges()
@@ -87,11 +100,11 @@ public class GeneralConfigControl : UserControl
             Text = text,
             Font = DarkTheme.CardTitleFont,
             ForeColor = DarkTheme.AccentSky,
-            Location = new Point(0, y),
+            Location = new Point(LeftMargin, y),
             AutoSize = true
         };
         Controls.Add(lbl);
-        y += 30;
+        y += 32;
     }
 
     private void AddLabel(string text, ref int y)
@@ -101,26 +114,27 @@ public class GeneralConfigControl : UserControl
             Text = text,
             Font = DarkTheme.CardBodyFont,
             ForeColor = DarkTheme.TextSecondary,
-            Location = new Point(0, y),
+            Location = new Point(LeftMargin, y),
             AutoSize = true
         };
         Controls.Add(label);
         y += 24;
     }
 
-    private TextBox AddTextBox(ref int y, int width)
+    private TextBox AddTextBox(ref int y)
     {
         var box = new TextBox
         {
-            Location = new Point(0, y),
-            Size = new Size(width, 32),
+            Location = new Point(LeftMargin, y),
+            Size = new Size(Math.Max(360, Math.Min(700, ClientSize.Width - (LeftMargin * 2) - 24)), 32),
             Font = DarkTheme.CardBodyFont,
             BackColor = DarkTheme.InputBackground,
             ForeColor = DarkTheme.TextPrimary,
             BorderStyle = BorderStyle.FixedSingle
         };
+        _boxes.Add(box);
         Controls.Add(box);
-        y += 40;
+        y += 42;
         return box;
     }
 }

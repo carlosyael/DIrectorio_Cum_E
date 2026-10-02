@@ -19,7 +19,7 @@ public class BoardManagementControl : UserControl
         _presenter = presenter;
         Dock = DockStyle.Fill;
         BackColor = Color.Transparent;
-        Padding = new Padding(15);
+        Padding = new Padding(24, 16, 24, 16);
 
         _listBox = new BoardOrderListBox
         {

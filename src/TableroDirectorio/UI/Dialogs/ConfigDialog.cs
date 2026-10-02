@@ -34,18 +34,19 @@ public class ConfigDialog : Form
             Dock = DockStyle.Top,
             Height = 46,
             BackColor = DarkTheme.BackgroundDark,
-            Padding = new Padding(15, 6, 15, 0)
+            Padding = new Padding(24, 6, 24, 0)
         };
 
         _tabBoardsBtn = CreateTabButton("Gestión de Tableros (Arrastrar y Soltar)", true);
+        _tabBoardsBtn.Location = new Point(24, 6);
         _tabBoardsBtn.Click += (_, _) => SwitchTab(true);
 
         _tabGeneralBtn = CreateTabButton("Información General & Seguridad", false);
+        _tabGeneralBtn.Location = new Point(_tabBoardsBtn.Right + 8, 6);
         _tabGeneralBtn.Click += (_, _) => SwitchTab(false);
 
         tabContainer.Controls.Add(_tabBoardsBtn);
         tabContainer.Controls.Add(_tabGeneralBtn);
-        _tabGeneralBtn.Left = _tabBoardsBtn.Right + 10;
 
         // Main content area
         _contentPanel = new Panel
