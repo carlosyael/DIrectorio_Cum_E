@@ -148,7 +148,7 @@ public class DashboardPanel : UserControl
         _counterPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 100,
+            Height = 115,
             BackColor = Color.Transparent,
             Padding = new Padding(0, 6, 0, 10)
         };

@@ -21,7 +21,7 @@ public class DirectoryCardControl : UserControl
                  ControlStyles.ResizeRedraw, true);
 
         Margin = new Padding(12);
-        Size = new Size(320, 295);
+        Size = new Size(320, 325);
         Cursor = Cursors.Hand;
 
         MouseEnter += (_, _) => { _isHovered = true; Invalidate(); };
@@ -57,7 +57,7 @@ public class DirectoryCardControl : UserControl
     protected override void OnResize(EventArgs e)
     {
         base.OnResize(e);
-        _buttonRect = new Rectangle(20, Height - 54, Width - 40, 38);
+        _buttonRect = new Rectangle(20, Height - 52, Width - 40, 38);
     }
 
     protected override void OnPaint(PaintEventArgs e)
@@ -82,7 +82,7 @@ public class DirectoryCardControl : UserControl
                 g.FillPath(brush, cardPath);
             }
 
-            // 2. Top Color Stripe with perfect clipping to rounded corners (no corner leakage)
+            // 2. Top Color Stripe with perfect clipping to rounded corners
             var oldClip = g.Clip;
             g.SetClip(cardPath);
             using (var stripeBrush = new SolidBrush(stripeColor))
@@ -93,14 +93,12 @@ public class DirectoryCardControl : UserControl
 
             // 3. Card Border
             var borderColor = _isHovered ? stripeColor : DarkTheme.CardBorder;
-            using (var pen = new Pen(borderColor, _isHovered ? 1.5f : 1f))
-            {
-                g.DrawPath(pen, cardPath);
-            }
+            using var pen = new Pen(borderColor, _isHovered ? 1.5f : 1f);
+            g.DrawPath(pen, cardPath);
         }
 
         // 4. Icon Container & Vector Icon
-        var iconBoxRect = new Rectangle(20, 18, 46, 46);
+        var iconBoxRect = new Rectangle(20, 16, 44, 44);
         using (var iconBg = new SolidBrush(Color.FromArgb(ThemeManager.Current.IsDark ? 28 : 16, stripeColor.R, stripeColor.G, stripeColor.B)))
         {
             using (var iconPath = CreateRoundedRectPath(iconBoxRect, 10))
@@ -117,20 +115,29 @@ public class DirectoryCardControl : UserControl
         // 5. Category (Top Right)
         if (!string.IsNullOrWhiteSpace(_item.Category))
         {
-            var catRect = new Rectangle(Width - 140, 22, 120, 20);
+            var catRect = new Rectangle(Width - 140, 20, 120, 20);
             TextRenderer.DrawText(g, _item.Category, new Font("Segoe UI", 9f, FontStyle.Regular),
                 catRect, DarkTheme.TextMuted, TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
         }
 
-        // 6. Title
-        var titleRect = new Rectangle(20, 74, Width - 40, 48);
-        TextRenderer.DrawText(g, _item.Title, new Font("Segoe UI", 11.5f, FontStyle.Bold), titleRect,
+        // 6. Title (Measured dynamically to display all lines completely without clipping)
+        int contentWidth = Width - 40;
+        using var titleFont = new Font("Segoe UI", 11.2f, FontStyle.Bold);
+        var titleSize = TextRenderer.MeasureText(g, _item.Title, titleFont,
+            new Size(contentWidth, 120), TextFormatFlags.WordBreak);
+        int titleHeight = Math.Max(24, titleSize.Height);
+        var titleRect = new Rectangle(20, 70, contentWidth, titleHeight);
+        TextRenderer.DrawText(g, _item.Title, titleFont, titleRect,
             DarkTheme.TextPrimary,
-            TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis);
+            TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.Top);
 
-        // 7. Description
-        var descRect = new Rectangle(20, 126, Width - 40, 50);
-        TextRenderer.DrawText(g, _item.Description, new Font("Segoe UI", 9f, FontStyle.Regular), descRect,
+        // 7. Description (Positioned dynamically directly under the title)
+        int descY = 70 + titleHeight + 6;
+        int badgeAreaTop = Height - 86;
+        int descMaxHeight = Math.Max(28, badgeAreaTop - descY);
+        var descRect = new Rectangle(20, descY, contentWidth, descMaxHeight);
+        using var descFont = new Font("Segoe UI", 9f, FontStyle.Regular);
+        TextRenderer.DrawText(g, _item.Description, descFont, descRect,
             DarkTheme.TextSecondary,
             TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis);
 
@@ -138,7 +145,7 @@ public class DirectoryCardControl : UserControl
         var badgeText = _item.ResourceType;
         var badgeFont = new Font("Segoe UI", 8.5f, FontStyle.Bold);
         var badgeSize = TextRenderer.MeasureText(badgeText, badgeFont);
-        int badgeY = Height - 54 - badgeSize.Height - 14;
+        int badgeY = Height - 52 - badgeSize.Height - 12;
         var badgeRect = new Rectangle(20, badgeY, badgeSize.Width + 14, badgeSize.Height + 5);
 
         using (var badgePath = CreateRoundedRectPath(badgeRect, 5))

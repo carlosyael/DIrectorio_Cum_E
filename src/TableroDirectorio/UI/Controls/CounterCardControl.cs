@@ -14,7 +14,7 @@ public class CounterCardControl : UserControl
                  ControlStyles.OptimizedDoubleBuffer |
                  ControlStyles.ResizeRedraw, true);
 
-        Size = new Size(210, 84);
+        Size = new Size(230, 96);
         BackColor = Color.Transparent;
         ThemeManager.ThemeChanged += Invalidate;
     }
@@ -58,15 +58,19 @@ public class CounterCardControl : UserControl
             g.DrawPath(pen, path);
         }
 
-        // Count Number
-        var numRect = new Rectangle(0, 8, Width, 42);
-        TextRenderer.DrawText(g, _count.ToString(), new Font("Segoe UI", 26f, FontStyle.Bold),
-            numRect, DarkTheme.AccentBlue, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        // Count Number (With ample vertical space and NoClipping to ensure full digit display)
+        var numRect = new Rectangle(0, 6, Width, 54);
+        using var numFont = new Font("Segoe UI", 28f, FontStyle.Bold);
+        TextRenderer.DrawText(g, _count.ToString(), numFont,
+            numRect, DarkTheme.AccentBlue,
+            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoClipping);
 
         // Subtitle Text
-        var textRect = new Rectangle(0, 50, Width, 24);
-        TextRenderer.DrawText(g, "Tableros Disponibles", new Font("Segoe UI", 9f, FontStyle.Regular),
-            textRect, DarkTheme.TextMuted, TextFormatFlags.HorizontalCenter | TextFormatFlags.Top);
+        var textRect = new Rectangle(0, 60, Width, 26);
+        using var textFont = new Font("Segoe UI", 9.5f, FontStyle.Regular);
+        TextRenderer.DrawText(g, "Tableros Disponibles", textFont,
+            textRect, DarkTheme.TextMuted,
+            TextFormatFlags.HorizontalCenter | TextFormatFlags.Top | TextFormatFlags.NoClipping);
     }
 
     private static GraphicsPath CreateRoundedRect(Rectangle rect, int radius)
