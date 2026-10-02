@@ -9,12 +9,8 @@ public class DirectoryCardControl : UserControl
     private DirectoryItem _item = null!;
     private bool _isHovered;
     private readonly Button _openButton;
-    private readonly Button _editButton;
-    private readonly Button _deleteButton;
 
     public event EventHandler<DirectoryItem>? CardClicked;
-    public event EventHandler<DirectoryItem>? EditRequested;
-    public event EventHandler<DirectoryItem>? DeleteRequested;
 
     public DirectoryCardControl()
     {
@@ -26,28 +22,15 @@ public class DirectoryCardControl : UserControl
         Margin = new Padding(15);
         Cursor = Cursors.Hand;
 
-        // Open button
-        _openButton = CreateStyledButton("Abrir Tablero", DarkTheme.AccentBlue);
+        _openButton = CreateStyledButton("Abrir Tablero");
         _openButton.Click += (_, _) => CardClicked?.Invoke(this, _item);
-
-        // Edit button (small)
-        _editButton = CreateSmallButton("✏️");
-        _editButton.Click += (_, _) => EditRequested?.Invoke(this, _item);
-
-        // Delete button (small)
-        _deleteButton = CreateSmallButton("🗑️");
-        _deleteButton.FlatAppearance.MouseOverBackColor = Color.FromArgb(80, 239, 68, 68);
-        _deleteButton.Click += (_, _) => DeleteRequested?.Invoke(this, _item);
-
         Controls.Add(_openButton);
-        Controls.Add(_editButton);
-        Controls.Add(_deleteButton);
 
-        // Set Size AFTER buttons exist so OnResize -> LayoutButtons doesn't hit nulls
-        Size = new Size(330, 280);
+        Size = new Size(330, 270);
 
         MouseEnter += (_, _) => { _isHovered = true; Invalidate(); };
         MouseLeave += (_, _) => { _isHovered = false; Invalidate(); };
+        Click += (_, _) => CardClicked?.Invoke(this, _item);
     }
 
     public void SetItem(DirectoryItem item)
@@ -59,18 +42,10 @@ public class DirectoryCardControl : UserControl
     protected override void OnResize(EventArgs e)
     {
         base.OnResize(e);
-        LayoutButtons();
-    }
-
-    private void LayoutButtons()
-    {
-        if (_openButton == null || _editButton == null || _deleteButton == null)
-            return;
-
-        var btnWidth = Width - 40;
-        _openButton.SetBounds(20, Height - 55, btnWidth, 38);
-        _editButton.SetBounds(Width - 75, 15, 28, 28);
-        _deleteButton.SetBounds(Width - 42, 15, 28, 28);
+        if (_openButton != null)
+        {
+            _openButton.SetBounds(20, Height - 52, Width - 40, 38);
+        }
     }
 
     protected override void OnPaint(PaintEventArgs e)
@@ -83,9 +58,9 @@ public class DirectoryCardControl : UserControl
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
         var rect = new Rectangle(0, 0, Width - 1, Height - 1);
-        var radius = 20;
+        const int radius = 18;
 
-        // Card background with color tint
+        // Background
         var bgColor = _isHovered ? DarkTheme.CardHover : DarkTheme.GetCardBackgroundWithTint(_item.ColorHex);
         using (var path = CreateRoundedRectPath(rect, radius))
         {
@@ -96,33 +71,41 @@ public class DirectoryCardControl : UserControl
             g.DrawPath(pen, path);
         }
 
-        // Top color stripe
+        // Top accent line
         var stripeColor = DarkTheme.GetCardColor(_item.ColorHex);
-        using (var stripePath = CreateTopStripePath(new Rectangle(0, 0, Width, 6), radius))
+        using (var stripePath = CreateTopStripePath(new Rectangle(0, 0, Width, 5), radius))
         {
             using var stripeBrush = new SolidBrush(stripeColor);
             g.FillPath(stripeBrush, stripePath);
         }
 
-        // Icon
+        // Icon box
         var iconText = DarkTheme.GetIcon(_item.IconName);
-        var iconRect = new Rectangle(20, 25, 55, 55);
-        using (var iconBg = new SolidBrush(Color.FromArgb(30, 255, 255, 255)))
+        var iconRect = new Rectangle(20, 20, 50, 50);
+        using (var iconBg = new SolidBrush(Color.FromArgb(28, 255, 255, 255)))
         {
-            using var iconPath = CreateRoundedRectPath(iconRect, 14);
+            using var iconPath = CreateRoundedRectPath(iconRect, 12);
             g.FillPath(iconBg, iconPath);
         }
-        TextRenderer.DrawText(g, iconText, new Font("Segoe UI Emoji", 22f), iconRect,
+        TextRenderer.DrawText(g, iconText, new Font("Segoe UI Emoji", 20f), iconRect,
             DarkTheme.TextPrimary, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
 
+        // Category Tag (if present)
+        if (!string.IsNullOrWhiteSpace(_item.Category))
+        {
+            var catRect = new Rectangle(Width - 130, 24, 110, 24);
+            TextRenderer.DrawText(g, _item.Category, DarkTheme.CardBodyFont, catRect,
+                DarkTheme.TextMuted, TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
+        }
+
         // Title
-        var titleRect = new Rectangle(20, 90, Width - 40, 55);
+        var titleRect = new Rectangle(20, 80, Width - 40, 52);
         TextRenderer.DrawText(g, _item.Title, DarkTheme.CardTitleFont, titleRect,
             DarkTheme.TextPrimary,
             TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.Top);
 
         // Description
-        var descRect = new Rectangle(20, 148, Width - 40, 60);
+        var descRect = new Rectangle(20, 136, Width - 40, 50);
         TextRenderer.DrawText(g, _item.Description, DarkTheme.CardBodyFont, descRect,
             DarkTheme.TextSecondary,
             TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.Top);
@@ -130,51 +113,32 @@ public class DirectoryCardControl : UserControl
         // Resource type badge
         var badgeText = _item.ResourceType;
         var badgeSize = TextRenderer.MeasureText(badgeText, DarkTheme.CardBodyFont);
-        var badgeRect = new Rectangle(20, Height - 65 - badgeSize.Height - 8,
-            badgeSize.Width + 16, badgeSize.Height + 6);
-        using (var badgePath = CreateRoundedRectPath(badgeRect, 8))
+        var badgeRect = new Rectangle(20, Height - 60 - badgeSize.Height, badgeSize.Width + 14, badgeSize.Height + 4);
+        using (var badgePath = CreateRoundedRectPath(badgeRect, 6))
         {
-            using var badgeBrush = new SolidBrush(Color.FromArgb(40, stripeColor.R, stripeColor.G, stripeColor.B));
+            using var badgeBrush = new SolidBrush(Color.FromArgb(35, stripeColor.R, stripeColor.G, stripeColor.B));
             g.FillPath(badgeBrush, badgePath);
         }
         TextRenderer.DrawText(g, badgeText, DarkTheme.CardBodyFont, badgeRect,
             stripeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+
+        // Update button color dynamically
+        _openButton.BackColor = DarkTheme.AccentBlue;
     }
 
-    private static Button CreateStyledButton(string text, Color accentColor)
+    private static Button CreateStyledButton(string text)
     {
         var btn = new Button
         {
             Text = text,
             FlatStyle = FlatStyle.Flat,
-            BackColor = accentColor,
+            BackColor = DarkTheme.AccentBlue,
             ForeColor = Color.White,
             Font = DarkTheme.ButtonFont,
             Cursor = Cursors.Hand,
-            Height = 38,
+            Height = 38
         };
         btn.FlatAppearance.BorderSize = 0;
-        btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(
-            Math.Min(255, accentColor.R + 30),
-            Math.Min(255, accentColor.G + 30),
-            Math.Min(255, accentColor.B + 30));
-        return btn;
-    }
-
-    private static Button CreateSmallButton(string text)
-    {
-        var btn = new Button
-        {
-            Text = text,
-            FlatStyle = FlatStyle.Flat,
-            BackColor = Color.Transparent,
-            ForeColor = DarkTheme.TextMuted,
-            Font = new Font("Segoe UI Emoji", 10f),
-            Size = new Size(28, 28),
-            Cursor = Cursors.Hand,
-        };
-        btn.FlatAppearance.BorderSize = 0;
-        btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(50, 255, 255, 255);
         return btn;
     }
 

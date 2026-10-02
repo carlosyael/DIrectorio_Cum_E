@@ -2,36 +2,31 @@ namespace TableroDirectorio.UI.Themes;
 
 public static class DarkTheme
 {
-    // Background colors
-    public static readonly Color BackgroundDark = Color.FromArgb(2, 6, 23);       // #020617
-    public static readonly Color BackgroundMid = Color.FromArgb(15, 23, 42);      // #0f172a
-    public static readonly Color BackgroundLight = Color.FromArgb(30, 41, 59);    // #1e293b
+    // Dynamic theme colors connected to ThemeManager
+    public static Color BackgroundDark => ThemeManager.Current.BackgroundDark;
+    public static Color BackgroundMid => ThemeManager.Current.BackgroundMid;
+    public static Color BackgroundLight => ThemeManager.Current.BackgroundLight;
 
-    // Accent colors
-    public static readonly Color AccentBlue = Color.FromArgb(37, 99, 246);        // #2563eb
-    public static readonly Color AccentSky = Color.FromArgb(56, 189, 248);        // #38bdf8
+    public static Color AccentBlue => ThemeManager.Current.AccentPrimary;
+    public static Color AccentSky => ThemeManager.Current.AccentSecondary;
     public static readonly Color AccentRed = Color.FromArgb(239, 68, 68);         // #EF4444
     public static readonly Color AccentGreen = Color.FromArgb(16, 185, 129);      // #10B981
     public static readonly Color AccentAmber = Color.FromArgb(245, 158, 11);      // #F59E0B
     public static readonly Color AccentPurple = Color.FromArgb(124, 58, 237);     // #7c3aed
 
-    // Text colors
-    public static readonly Color TextPrimary = Color.White;
-    public static readonly Color TextSecondary = Color.FromArgb(219, 230, 254);   // #dbeafe
-    public static readonly Color TextMuted = Color.FromArgb(203, 213, 225);       // #cbd5e1
+    public static Color TextPrimary => ThemeManager.Current.TextPrimary;
+    public static Color TextSecondary => ThemeManager.Current.TextSecondary;
+    public static Color TextMuted => ThemeManager.Current.TextMuted;
 
-    // Card colors
-    public static readonly Color CardBackground = Color.FromArgb(40, 50, 70);
-    public static readonly Color CardBorder = Color.FromArgb(60, 70, 90);
-    public static readonly Color CardHover = Color.FromArgb(50, 60, 80);
+    public static Color CardBackground => ThemeManager.Current.CardBackground;
+    public static Color CardBorder => ThemeManager.Current.CardBorder;
+    public static Color CardHover => ThemeManager.Current.CardHover;
 
-    // Input
-    public static readonly Color InputBackground = Color.FromArgb(20, 30, 50);
-    public static readonly Color InputBorder = Color.FromArgb(60, 80, 120);
+    public static Color InputBackground => ThemeManager.Current.InputBackground;
+    public static Color InputBorder => ThemeManager.Current.InputBorder;
 
-    // Button gradient
-    public static readonly Color ButtonStart = Color.FromArgb(56, 189, 248);      // #38bdf8
-    public static readonly Color ButtonEnd = Color.FromArgb(37, 99, 246);         // #2563eb
+    public static Color ButtonStart => ThemeManager.Current.AccentSecondary;
+    public static Color ButtonEnd => ThemeManager.Current.AccentPrimary;
 
     // Fonts
     public static readonly Font TitleFont = new("Segoe UI", 28f, FontStyle.Bold);
@@ -56,14 +51,8 @@ public static class DarkTheme
         }
     }
 
-    public static Color GetCardBackgroundWithTint(string colorHex)
-    {
-        var tint = GetCardColor(colorHex);
-        return Color.FromArgb(
-            (int)(tint.R * 0.15 + BackgroundLight.R * 0.85),
-            (int)(tint.G * 0.15 + BackgroundLight.G * 0.85),
-            (int)(tint.B * 0.15 + BackgroundLight.B * 0.85));
-    }
+    public static Color GetCardBackgroundWithTint(string colorHex) =>
+        ThemeManager.Current.GetCardBackgroundWithTint(colorHex);
 
     public static void ApplyTo(Control control)
     {
@@ -72,7 +61,6 @@ public static class DarkTheme
         control.Font = CardBodyFont;
     }
 
-    /// <summary>Gets an emoji icon based on icon name from the directory item.</summary>
     public static string GetIcon(string iconName)
     {
         return iconName?.ToLowerInvariant() switch

@@ -24,7 +24,10 @@ public class MainForm : Form
         var directoryService = new DirectoryService(itemRepo);
         var configService = new ConfigService(configRepo);
         var dashboardPresenter = new DashboardPresenter(directoryService, configService);
-        _configPresenter = new ConfigPresenter(configService);
+        _configPresenter = new ConfigPresenter(configService, directoryService);
+
+        // Load configured theme
+        ThemeManager.SetTheme(configService.GetTheme());
 
         // Form setup
         Text = $"{configService.GetAppTitle()} — Directorio de Tableros";
@@ -35,8 +38,13 @@ public class MainForm : Form
         ForeColor = DarkTheme.TextPrimary;
         Font = DarkTheme.CardBodyFont;
 
-        // Set the icon text in titlebar
-        // If .ico file exists, use it; otherwise rely on default
+        ThemeManager.ThemeChanged += () =>
+        {
+            BackColor = DarkTheme.BackgroundMid;
+            ForeColor = DarkTheme.TextPrimary;
+            Invalidate(true);
+        };
+
         var iconPath = System.IO.Path.Combine(
             AppDomain.CurrentDomain.BaseDirectory, "Resources", "app_icon.ico");
         if (System.IO.File.Exists(iconPath))
@@ -54,7 +62,6 @@ public class MainForm : Form
 
     private void OnConfigRequested(object? sender, EventArgs e)
     {
-        // Ask for master password first
         using var pwdDialog = new Dialogs.PasswordDialog();
         if (pwdDialog.ShowDialog() != DialogResult.OK)
             return;
@@ -69,9 +76,10 @@ public class MainForm : Form
             return;
         }
 
-        // Open config dialog
         using var configDialog = new Dialogs.ConfigDialog(_configPresenter);
-        if (configDialog.ShowDialog() == DialogResult.OK)
+        configDialog.ShowDialog();
+
+        if (configDialog.HasChanges)
         {
             _dashboardPanel.RefreshData();
             Text = $"{_configPresenter.GetAppTitle()} — Directorio de Tableros";

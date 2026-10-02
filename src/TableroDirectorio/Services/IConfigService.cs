@@ -9,4 +9,6 @@ public interface IConfigService
     void ChangeMasterPassword(string newPassword);
     string? GetValue(string key);
     void SetValue(string key, string value);
+    string GetTheme();
+    void SetTheme(string themeName);
 }

@@ -43,4 +43,8 @@ public class ConfigService : IConfigService
     public string? GetValue(string key) => _repository.GetValue(key);
 
     public void SetValue(string key, string value) => _repository.SetValue(key, value);
+
+    public string GetTheme() => _repository.GetValue("AppTheme") ?? "Azul Medianoche";
+
+    public void SetTheme(string themeName) => _repository.SetValue("AppTheme", themeName);
 }

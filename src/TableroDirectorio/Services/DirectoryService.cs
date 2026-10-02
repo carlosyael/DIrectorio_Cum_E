@@ -43,4 +43,9 @@ public class DirectoryService : IDirectoryService
     {
         ResourceLauncher.Open(item.Path, item.ResourceType);
     }
+
+    public void UpdateOrder(IEnumerable<(int Id, int SortOrder)> items)
+    {
+        _repository.UpdateOrder(items);
+    }
 }

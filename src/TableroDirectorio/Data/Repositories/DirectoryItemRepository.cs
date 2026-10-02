@@ -119,4 +119,26 @@ public class DirectoryItemRepository : IDirectoryItemRepository
             return Enumerable.Empty<DirectoryItem>();
         }
     }
+
+    public void UpdateOrder(IEnumerable<(int Id, int SortOrder)> items)
+    {
+        try
+        {
+            using var conn = _factory.CreateConnection();
+            conn.Open();
+            using var transaction = conn.BeginTransaction();
+            foreach (var item in items)
+            {
+                conn.Execute(
+                    "UPDATE DirectoryItems SET SortOrder = @SortOrder, UpdatedAt = datetime('now') WHERE Id = @Id",
+                    new { item.SortOrder, item.Id },
+                    transaction);
+            }
+            transaction.Commit();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error updating directory items sort orders.");
+        }
+    }
 }

@@ -10,4 +10,5 @@ public interface IDirectoryItemRepository
     bool Update(DirectoryItem item);
     bool Delete(int id);
     IEnumerable<DirectoryItem> Search(string query);
+    void UpdateOrder(IEnumerable<(int Id, int SortOrder)> items);
 }

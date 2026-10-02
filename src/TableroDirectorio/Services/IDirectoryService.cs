@@ -11,4 +11,5 @@ public interface IDirectoryService
     bool DeleteItem(int id);
     IEnumerable<DirectoryItem> SearchItems(string query);
     void OpenResource(DirectoryItem item);
+    void UpdateOrder(IEnumerable<(int Id, int SortOrder)> items);
 }

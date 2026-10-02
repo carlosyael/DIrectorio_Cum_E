@@ -1,4 +1,5 @@
 using TableroDirectorio.Presenters;
+using TableroDirectorio.UI.Controls;
 using TableroDirectorio.UI.Themes;
 
 namespace TableroDirectorio.UI.Dialogs;
@@ -6,17 +7,20 @@ namespace TableroDirectorio.UI.Dialogs;
 public class ConfigDialog : Form
 {
     private readonly ConfigPresenter _presenter;
-    private readonly TextBox _titleBox;
-    private readonly TextBox _subtitleBox;
-    private readonly TextBox _bannerBox;
-    private readonly TextBox _newPasswordBox;
-    private readonly TextBox _confirmPasswordBox;
+    private readonly BoardManagementControl _boardControl;
+    private readonly GeneralConfigControl _generalControl;
+    private readonly Button _tabBoardsBtn;
+    private readonly Button _tabGeneralBtn;
+    private readonly Panel _contentPanel;
+
+    public bool HasChanges { get; private set; }
 
     public ConfigDialog(ConfigPresenter presenter)
     {
         _presenter = presenter;
-        Text = "⚙️ Configuración";
-        Size = new Size(520, 460);
+        Text = "⚙️ Panel de Configuración & Gestión de Tableros";
+        Size = new Size(820, 640);
+        MinimumSize = new Size(750, 550);
         StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -24,49 +28,54 @@ public class ConfigDialog : Form
         BackColor = DarkTheme.BackgroundMid;
         ForeColor = DarkTheme.TextPrimary;
 
-        var y = 20;
-
-        // Title
-        AddLabel("Título de la Aplicación", ref y);
-        _titleBox = AddTextBox(ref y);
-        _titleBox.Text = presenter.GetAppTitle();
-
-        // Subtitle
-        AddLabel("Subtítulo", ref y);
-        _subtitleBox = AddTextBox(ref y);
-        _subtitleBox.Text = presenter.GetAppSubtitle();
-
-        // Banner
-        AddLabel("Texto del Banner", ref y);
-        _bannerBox = AddTextBox(ref y);
-        _bannerBox.Text = presenter.GetBannerText();
-
-        // Separator
-        var separator = new Label
+        // Top navigation tabs
+        var tabContainer = new Panel
         {
-            Text = "── Cambiar Contraseña Maestra ──",
-            Font = DarkTheme.CardTitleFont,
-            ForeColor = DarkTheme.AccentSky,
-            Location = new Point(30, y + 10),
-            AutoSize = true
+            Dock = DockStyle.Top,
+            Height = 46,
+            BackColor = DarkTheme.BackgroundDark,
+            Padding = new Padding(15, 6, 15, 0)
         };
-        Controls.Add(separator);
-        y += 40;
 
-        AddLabel("Nueva Contraseña", ref y);
-        _newPasswordBox = AddTextBox(ref y);
-        _newPasswordBox.UseSystemPasswordChar = true;
+        _tabBoardsBtn = CreateTabButton("📋 Gestión de Tableros (Drag & Drop)", true);
+        _tabBoardsBtn.Click += (_, _) => SwitchTab(true);
 
-        AddLabel("Confirmar Contraseña", ref y);
-        _confirmPasswordBox = AddTextBox(ref y);
-        _confirmPasswordBox.UseSystemPasswordChar = true;
+        _tabGeneralBtn = CreateTabButton("🎨 Selector de Tema & Seguridad", false);
+        _tabGeneralBtn.Click += (_, _) => SwitchTab(false);
 
-        // Save button
+        tabContainer.Controls.Add(_tabBoardsBtn);
+        tabContainer.Controls.Add(_tabGeneralBtn);
+        _tabGeneralBtn.Left = _tabBoardsBtn.Right + 10;
+
+        // Main content area
+        _contentPanel = new Panel
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.Transparent
+        };
+
+        _boardControl = new BoardManagementControl(_presenter);
+        _boardControl.BoardListChanged += () => HasChanges = true;
+
+        _generalControl = new GeneralConfigControl(_presenter);
+
+        _contentPanel.Controls.Add(_boardControl);
+        _contentPanel.Controls.Add(_generalControl);
+
+        // Bottom footer
+        var footer = new Panel
+        {
+            Dock = DockStyle.Bottom,
+            Height = 56,
+            BackColor = DarkTheme.BackgroundDark,
+            Padding = new Padding(15, 10, 15, 10)
+        };
+
         var saveBtn = new Button
         {
-            Text = "Guardar Configuración",
-            Location = new Point(30, y + 10),
-            Size = new Size(210, 40),
+            Text = "Guardar y Salir",
+            Dock = DockStyle.Right,
+            Width = 160,
             FlatStyle = FlatStyle.Flat,
             BackColor = DarkTheme.AccentBlue,
             ForeColor = Color.White,
@@ -74,86 +83,80 @@ public class ConfigDialog : Form
             Cursor = Cursors.Hand
         };
         saveBtn.FlatAppearance.BorderSize = 0;
-        saveBtn.Click += OnSaveClick;
+        saveBtn.Click += OnSaveAndClose;
 
         var cancelBtn = new Button
         {
-            Text = "Cancelar",
-            DialogResult = DialogResult.Cancel,
-            Location = new Point(260, y + 10),
-            Size = new Size(210, 40),
+            Text = "Cerrar",
+            Dock = DockStyle.Right,
+            Width = 100,
             FlatStyle = FlatStyle.Flat,
             BackColor = DarkTheme.BackgroundLight,
             ForeColor = DarkTheme.TextMuted,
             Font = DarkTheme.ButtonFont,
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Hand,
+            Margin = new Padding(0, 0, 10, 0)
         };
         cancelBtn.FlatAppearance.BorderSize = 0;
+        cancelBtn.Click += (_, _) => Close();
 
-        CancelButton = cancelBtn;
-        Controls.AddRange(new Control[] { saveBtn, cancelBtn });
+        footer.Controls.Add(cancelBtn);
+        footer.Controls.Add(saveBtn);
+
+        Controls.Add(_contentPanel);
+        Controls.Add(footer);
+        Controls.Add(tabContainer);
+
+        SwitchTab(true);
     }
 
-    private void AddLabel(string text, ref int y)
+    private void SwitchTab(bool showBoards)
     {
-        var label = new Label
+        _boardControl.Visible = showBoards;
+        _generalControl.Visible = !showBoards;
+
+        if (showBoards)
+        {
+            _tabBoardsBtn.BackColor = DarkTheme.BackgroundMid;
+            _tabBoardsBtn.ForeColor = DarkTheme.AccentSky;
+            _tabGeneralBtn.BackColor = Color.Transparent;
+            _tabGeneralBtn.ForeColor = DarkTheme.TextMuted;
+        }
+        else
+        {
+            _tabBoardsBtn.BackColor = Color.Transparent;
+            _tabBoardsBtn.ForeColor = DarkTheme.TextMuted;
+            _tabGeneralBtn.BackColor = DarkTheme.BackgroundMid;
+            _tabGeneralBtn.ForeColor = DarkTheme.AccentSky;
+        }
+    }
+
+    private void OnSaveAndClose(object? sender, EventArgs e)
+    {
+        if (_generalControl.SaveChanges())
+        {
+            _boardControl.SaveCurrentOrder();
+            HasChanges = true;
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+    }
+
+    private static Button CreateTabButton(string text, bool isActive)
+    {
+        var btn = new Button
         {
             Text = text,
-            Font = DarkTheme.CardBodyFont,
-            ForeColor = DarkTheme.TextSecondary,
-            Location = new Point(30, y),
-            AutoSize = true
+            FlatStyle = FlatStyle.Flat,
+            BackColor = isActive ? DarkTheme.BackgroundMid : Color.Transparent,
+            ForeColor = isActive ? DarkTheme.AccentSky : DarkTheme.TextMuted,
+            Font = DarkTheme.CardTitleFont,
+            Cursor = Cursors.Hand,
+            Height = 40,
+            AutoSize = true,
+            Padding = new Padding(12, 0, 12, 0)
         };
-        Controls.Add(label);
-        y += 22;
-    }
-
-    private TextBox AddTextBox(ref int y)
-    {
-        var box = new TextBox
-        {
-            Location = new Point(30, y),
-            Size = new Size(440, 30),
-            Font = DarkTheme.CardBodyFont,
-            BackColor = DarkTheme.InputBackground,
-            ForeColor = DarkTheme.TextPrimary,
-            BorderStyle = BorderStyle.FixedSingle
-        };
-        Controls.Add(box);
-        y += 35;
-        return box;
-    }
-
-    private void OnSaveClick(object? sender, EventArgs e)
-    {
-        // Save title/subtitle/banner
-        _presenter.SaveAppTitle(_titleBox.Text.Trim());
-        _presenter.SaveAppSubtitle(_subtitleBox.Text.Trim());
-        _presenter.SaveBannerText(_bannerBox.Text.Trim());
-
-        // Handle password change
-        if (!string.IsNullOrWhiteSpace(_newPasswordBox.Text))
-        {
-            if (_newPasswordBox.Text != _confirmPasswordBox.Text)
-            {
-                MessageBox.Show("Las contraseñas no coinciden.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (_newPasswordBox.Text.Length < 4)
-            {
-                MessageBox.Show("La contraseña debe tener al menos 4 caracteres.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            _presenter.ChangePassword(_newPasswordBox.Text);
-        }
-
-        MessageBox.Show("Configuración guardada exitosamente.", "Éxito",
-            MessageBoxButtons.OK, MessageBoxIcon.Information);
-        DialogResult = DialogResult.OK;
-        Close();
+        btn.FlatAppearance.BorderSize = 0;
+        return btn;
     }
 }

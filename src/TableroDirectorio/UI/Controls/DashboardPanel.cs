@@ -16,8 +16,9 @@ public class DashboardPanel : UserControl
     private readonly FlowLayoutPanel _cardsContainer;
     private readonly Panel _headerPanel;
     private readonly Panel _counterPanel;
+    private readonly Panel _counterCard;
     private readonly Panel _searchPanel;
-    private readonly Button _addButton;
+    private readonly Panel _searchInner;
 
     public event EventHandler? ConfigRequested;
 
@@ -26,23 +27,21 @@ public class DashboardPanel : UserControl
         _presenter = presenter;
         Dock = DockStyle.Fill;
         AutoScroll = true;
-        BackColor = DarkTheme.BackgroundMid;
         Padding = new Padding(0, 0, 0, 40);
 
         // Header panel
         _headerPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 150,
+            Height = 145,
             BackColor = Color.Transparent,
-            Padding = new Padding(20, 40, 20, 10)
+            Padding = new Padding(20, 35, 20, 10)
         };
 
         _titleLabel = new Label
         {
             Text = $"🛡️ {_presenter.GetTitle()}",
             Font = DarkTheme.TitleFont,
-            ForeColor = DarkTheme.TextPrimary,
             AutoSize = false,
             TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Top,
@@ -53,7 +52,6 @@ public class DashboardPanel : UserControl
         {
             Text = _presenter.GetSubtitle(),
             Font = DarkTheme.SubtitleFont,
-            ForeColor = DarkTheme.TextSecondary,
             AutoSize = false,
             TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Top,
@@ -86,11 +84,9 @@ public class DashboardPanel : UserControl
         {
             Text = _presenter.GetBanner(),
             Font = DarkTheme.BannerFont,
-            ForeColor = DarkTheme.TextSecondary,
-            BackColor = Color.FromArgb(20, 255, 255, 255),
             AutoSize = false,
             TextAlign = ContentAlignment.MiddleCenter,
-            Height = 40,
+            Height = 38,
             Dock = DockStyle.Top,
             Padding = new Padding(20, 0, 20, 0)
         };
@@ -99,55 +95,51 @@ public class DashboardPanel : UserControl
         _counterPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 100,
+            Height = 90,
             BackColor = Color.Transparent,
-            Padding = new Padding(0, 15, 0, 15)
+            Padding = new Padding(0, 10, 0, 10)
         };
 
-        var counterCard = new Panel
+        _counterCard = new Panel
         {
-            Size = new Size(200, 70),
-            BackColor = Color.FromArgb(20, 255, 255, 255),
+            Size = new Size(200, 68),
         };
 
         _counterNumber = new Label
         {
             Text = "0",
             Font = DarkTheme.CounterFont,
-            ForeColor = DarkTheme.AccentSky,
             TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Top,
-            Height = 45
+            Height = 44
         };
 
         _counterText = new Label
         {
             Text = "Tableros Disponibles",
             Font = DarkTheme.CounterLabelFont,
-            ForeColor = DarkTheme.TextMuted,
             TextAlign = ContentAlignment.TopCenter,
             Dock = DockStyle.Fill
         };
 
-        counterCard.Controls.Add(_counterText);
-        counterCard.Controls.Add(_counterNumber);
-        _counterPanel.Controls.Add(counterCard);
+        _counterCard.Controls.Add(_counterText);
+        _counterCard.Controls.Add(_counterNumber);
+        _counterPanel.Controls.Add(_counterCard);
 
-        // Center the counter card
         _counterPanel.Resize += (_, _) =>
         {
-            counterCard.Location = new Point(
-                (_counterPanel.Width - counterCard.Width) / 2,
-                (_counterPanel.Height - counterCard.Height) / 2);
+            _counterCard.Location = new Point(
+                (_counterPanel.Width - _counterCard.Width) / 2,
+                (_counterPanel.Height - _counterCard.Height) / 2);
         };
 
         // Search panel
         _searchPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 60,
+            Height = 55,
             BackColor = Color.Transparent,
-            Padding = new Padding(40, 5, 100, 5)
+            Padding = new Padding(60, 5, 60, 5)
         };
 
         _searchBar = new SearchBar
@@ -156,32 +148,13 @@ public class DashboardPanel : UserControl
         };
         _searchBar.TextChanged += OnSearchTextChanged;
 
-        _addButton = new Button
-        {
-            Text = "➕ Nuevo",
-            FlatStyle = FlatStyle.Flat,
-            BackColor = DarkTheme.AccentGreen,
-            ForeColor = Color.White,
-            Font = DarkTheme.ButtonFont,
-            Dock = DockStyle.Right,
-            Width = 100,
-            Cursor = Cursors.Hand,
-            Margin = new Padding(10, 0, 0, 0)
-        };
-        _addButton.FlatAppearance.BorderSize = 0;
-        _addButton.Click += OnAddButtonClick;
-
-        // Wrap search in a bordered panel for visual effect
-        var searchInner = new Panel
+        _searchInner = new Panel
         {
             Dock = DockStyle.Fill,
-            BackColor = DarkTheme.InputBackground,
             Padding = new Padding(15, 8, 15, 8)
         };
-        searchInner.Controls.Add(_searchBar);
-
-        _searchPanel.Controls.Add(searchInner);
-        _searchPanel.Controls.Add(_addButton);
+        _searchInner.Controls.Add(_searchBar);
+        _searchPanel.Controls.Add(_searchInner);
 
         // Cards container
         _cardsContainer = new FlowLayoutPanel
@@ -201,11 +174,29 @@ public class DashboardPanel : UserControl
         Controls.Add(_bannerLabel);
         Controls.Add(_headerPanel);
 
-        // Position config button after layout
         _headerPanel.Resize += (_, _) =>
         {
             configButton.Location = new Point(_headerPanel.Width - 60, 10);
         };
+
+        ThemeManager.ThemeChanged += ApplyTheme;
+        ApplyTheme();
+    }
+
+    public void ApplyTheme()
+    {
+        BackColor = DarkTheme.BackgroundMid;
+        _titleLabel.ForeColor = DarkTheme.TextPrimary;
+        _subtitleLabel.ForeColor = DarkTheme.TextSecondary;
+        _bannerLabel.ForeColor = DarkTheme.TextSecondary;
+        _bannerLabel.BackColor = Color.FromArgb(20, DarkTheme.TextPrimary.R, DarkTheme.TextPrimary.G, DarkTheme.TextPrimary.B);
+        _counterCard.BackColor = Color.FromArgb(20, DarkTheme.TextPrimary.R, DarkTheme.TextPrimary.G, DarkTheme.TextPrimary.B);
+        _counterNumber.ForeColor = DarkTheme.AccentSky;
+        _counterText.ForeColor = DarkTheme.TextMuted;
+        _searchInner.BackColor = DarkTheme.InputBackground;
+        _searchBar.BackColor = DarkTheme.InputBackground;
+        _searchBar.ForeColor = DarkTheme.TextMuted;
+        Invalidate(true);
     }
 
     public void LoadDashboard()
@@ -219,6 +210,7 @@ public class DashboardPanel : UserControl
         _titleLabel.Text = $"🛡️ {_presenter.GetTitle()}";
         _subtitleLabel.Text = _presenter.GetSubtitle();
         _bannerLabel.Text = _presenter.GetBanner();
+        ApplyTheme();
         LoadDashboard();
     }
 
@@ -232,8 +224,6 @@ public class DashboardPanel : UserControl
             var card = new DirectoryCardControl();
             card.SetItem(item);
             card.CardClicked += (_, it) => _presenter.OpenItem(it);
-            card.EditRequested += OnEditRequested;
-            card.DeleteRequested += OnDeleteRequested;
             _cardsContainer.Controls.Add(card);
         }
 
@@ -249,40 +239,5 @@ public class DashboardPanel : UserControl
         var query = _searchBar.SearchText;
         var items = _presenter.Search(query).ToList();
         PopulateCards(items);
-    }
-
-    private void OnAddButtonClick(object? sender, EventArgs e)
-    {
-        using var dialog = new Dialogs.ItemEditorDialog();
-        if (dialog.ShowDialog() == DialogResult.OK && dialog.ResultItem != null)
-        {
-            _presenter.AddItem(dialog.ResultItem);
-            LoadDashboard();
-        }
-    }
-
-    private void OnEditRequested(object? sender, DirectoryItem item)
-    {
-        using var dialog = new Dialogs.ItemEditorDialog(item);
-        if (dialog.ShowDialog() == DialogResult.OK && dialog.ResultItem != null)
-        {
-            _presenter.EditItem(dialog.ResultItem);
-            LoadDashboard();
-        }
-    }
-
-    private void OnDeleteRequested(object? sender, DirectoryItem item)
-    {
-        var result = MessageBox.Show(
-            $"¿Estás seguro de eliminar '{item.Title}'?",
-            "Confirmar Eliminación",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Warning);
-
-        if (result == DialogResult.Yes)
-        {
-            _presenter.RemoveItem(item.Id);
-            LoadDashboard();
-        }
     }
 }
