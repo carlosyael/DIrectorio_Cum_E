@@ -36,6 +36,12 @@ public static class IconRenderer
             case "palette" or "theme":
                 DrawPalette(g, bounds, color);
                 break;
+            case "sun" or "light":
+                DrawSun(g, bounds, color);
+                break;
+            case "moon" or "dark":
+                DrawMoon(g, bounds, color);
+                break;
             case "shield":
                 DrawShield(g, bounds, color);
                 break;
@@ -210,5 +216,49 @@ public static class IconRenderer
         g.FillEllipse(brush, r.Left + r.Width * 0.3f, r.Top + r.Height * 0.3f, 3f, 3f);
         g.FillEllipse(brush, r.Left + r.Width * 0.65f, r.Top + r.Height * 0.35f, 3f, 3f);
         g.FillEllipse(brush, r.Left + r.Width * 0.45f, r.Top + r.Height * 0.65f, 3f, 3f);
+    }
+
+    public static void DrawSun(Graphics g, Rectangle bounds, Color color)
+    {
+        int p = bounds.Width / 6;
+        var r = new Rectangle(bounds.X + p, bounds.Y + p, bounds.Width - 2 * p, bounds.Height - 2 * p);
+
+        int cx = r.Left + r.Width / 2;
+        int cy = r.Top + r.Height / 2;
+        int circleRadius = r.Width / 4;
+
+        using var pen = new Pen(color, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+        g.DrawEllipse(pen, cx - circleRadius, cy - circleRadius, circleRadius * 2, circleRadius * 2);
+
+        // 8 rays
+        int rayInner = (int)(circleRadius * 1.45f);
+        int rayOuter = r.Width / 2;
+        for (int i = 0; i < 8; i++)
+        {
+            double angle = i * Math.PI / 4;
+            int x1 = cx + (int)(Math.Cos(angle) * rayInner);
+            int y1 = cy + (int)(Math.Sin(angle) * rayInner);
+            int x2 = cx + (int)(Math.Cos(angle) * rayOuter);
+            int y2 = cy + (int)(Math.Sin(angle) * rayOuter);
+            g.DrawLine(pen, x1, y1, x2, y2);
+        }
+    }
+
+    public static void DrawMoon(Graphics g, Rectangle bounds, Color color)
+    {
+        int p = bounds.Width / 6;
+        var r = new Rectangle(bounds.X + p, bounds.Y + p, bounds.Width - 2 * p, bounds.Height - 2 * p);
+
+        using var path = new GraphicsPath();
+        path.AddArc(r.X, r.Y, r.Width, r.Height, 75, 230);
+        path.AddBezier(
+            r.X + (float)(r.Width * 0.5), r.Bottom - 2,
+            r.X + (float)(r.Width * 0.75), r.Y + (float)(r.Height * 0.5),
+            r.X + (float)(r.Width * 0.55), r.Y + (float)(r.Height * 0.2),
+            r.Right - (float)(r.Width * 0.15), r.Y + 2);
+        path.CloseFigure();
+
+        using var pen = new Pen(color, 2f) { LineJoin = LineJoin.Round };
+        g.DrawPath(pen, path);
     }
 }

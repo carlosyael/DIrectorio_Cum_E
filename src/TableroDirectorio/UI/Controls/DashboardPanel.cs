@@ -17,9 +17,8 @@ public class DashboardPanel : UserControl
     private readonly Panel _headerPanel;
     private readonly Panel _counterPanel;
     private readonly Panel _searchPanel;
-    private readonly ComboBox _themeSelector;
+    private readonly ThemeToggleControl _themeToggle;
     private readonly Label _orgLabel;
-    private readonly Label _themeLabel;
     private readonly Button _configBtn;
 
     public event EventHandler? ConfigRequested;
@@ -64,30 +63,11 @@ public class DashboardPanel : UserControl
         _configBtn.FlatAppearance.BorderSize = 1;
         _configBtn.Click += (_, _) => ConfigRequested?.Invoke(this, EventArgs.Empty);
 
-        _themeSelector = new ComboBox
+        _themeToggle = new ThemeToggleControl
         {
-            DropDownStyle = ComboBoxStyle.DropDownList,
-            FlatStyle = FlatStyle.Flat,
-            Font = new Font("Segoe UI", 9.5f),
-            Width = 175,
-            Height = 32,
-            Cursor = Cursors.Hand
+            Margin = new Padding(0, 0, 8, 0)
         };
-        foreach (var theme in ThemeManager.ThemeNames)
-        {
-            _themeSelector.Items.Add(theme);
-        }
-        _themeSelector.SelectedItem = ThemeManager.Current.Name;
-        _themeSelector.SelectedIndexChanged += OnThemeChangedByUser;
-
-        _themeLabel = new Label
-        {
-            Text = "Tema:",
-            Font = new Font("Segoe UI", 9.5f),
-            AutoSize = true,
-            TextAlign = ContentAlignment.MiddleRight,
-            Margin = new Padding(0, 7, 6, 0)
-        };
+        _themeToggle.ThemeToggled += (_, _) => _presenter.SaveTheme(ThemeManager.CurrentThemeName);
 
         var rightPanel = new FlowLayoutPanel
         {
@@ -97,8 +77,7 @@ public class DashboardPanel : UserControl
             WrapContents = false,
             BackColor = Color.Transparent
         };
-        rightPanel.Controls.Add(_themeLabel);
-        rightPanel.Controls.Add(_themeSelector);
+        rightPanel.Controls.Add(_themeToggle);
         rightPanel.Controls.Add(_configBtn);
 
         _topBar.Controls.Add(_orgLabel);
@@ -206,15 +185,6 @@ public class DashboardPanel : UserControl
         ApplyTheme();
     }
 
-    private void OnThemeChangedByUser(object? sender, EventArgs e)
-    {
-        if (_themeSelector.SelectedItem is string themeName)
-        {
-            ThemeManager.SetTheme(themeName);
-            _presenter.SaveTheme(themeName);
-        }
-    }
-
     public void ApplyTheme()
     {
         BackColor = DarkTheme.BackgroundMid;
@@ -225,18 +195,10 @@ public class DashboardPanel : UserControl
 
         // Top bar controls (guaranteed readable in both light and dark themes)
         _orgLabel.ForeColor = DarkTheme.TextMuted;
-        _themeLabel.ForeColor = DarkTheme.TextMuted;
-        _themeSelector.BackColor = DarkTheme.InputBackground;
-        _themeSelector.ForeColor = DarkTheme.TextPrimary;
 
         _configBtn.BackColor = DarkTheme.CardBackground;
         _configBtn.ForeColor = DarkTheme.TextPrimary;
         _configBtn.FlatAppearance.BorderColor = DarkTheme.CardBorder;
-
-        if (_themeSelector.SelectedItem?.ToString() != ThemeManager.Current.Name)
-        {
-            _themeSelector.SelectedItem = ThemeManager.Current.Name;
-        }
 
         Invalidate(true);
     }
