@@ -243,6 +243,9 @@ public class DashboardPanel : UserControl
 
     private void OnSearchTextChanged(object? sender, EventArgs e)
     {
+        if (_searchBar.IsSuppressed)
+            return;
+
         var query = _searchBar.SearchText;
         var items = _presenter.Search(query).ToList();
         PopulateCards(items);

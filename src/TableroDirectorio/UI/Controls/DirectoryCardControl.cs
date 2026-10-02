@@ -23,7 +23,6 @@ public class DirectoryCardControl : UserControl
                  ControlStyles.OptimizedDoubleBuffer |
                  ControlStyles.ResizeRedraw, true);
 
-        Size = new Size(330, 280);
         Margin = new Padding(15);
         Cursor = Cursors.Hand;
 
@@ -44,6 +43,9 @@ public class DirectoryCardControl : UserControl
         Controls.Add(_editButton);
         Controls.Add(_deleteButton);
 
+        // Set Size AFTER buttons exist so OnResize -> LayoutButtons doesn't hit nulls
+        Size = new Size(330, 280);
+
         MouseEnter += (_, _) => { _isHovered = true; Invalidate(); };
         MouseLeave += (_, _) => { _isHovered = false; Invalidate(); };
     }
@@ -62,6 +64,9 @@ public class DirectoryCardControl : UserControl
 
     private void LayoutButtons()
     {
+        if (_openButton == null || _editButton == null || _deleteButton == null)
+            return;
+
         var btnWidth = Width - 40;
         _openButton.SetBounds(20, Height - 55, btnWidth, 38);
         _editButton.SetBounds(Width - 75, 15, 28, 28);
