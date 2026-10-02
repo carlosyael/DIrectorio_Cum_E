@@ -1,4 +1,5 @@
 using TableroDirectorio.Models;
+using TableroDirectorio.UI.Controls;
 using TableroDirectorio.UI.Themes;
 
 namespace TableroDirectorio.UI.Dialogs;
@@ -11,7 +12,7 @@ public class ItemEditorDialog : Form
     private readonly TextBox _pathBox;
     private readonly ComboBox _iconBox;
     private readonly TextBox _categoryBox;
-    private readonly TextBox _colorBox;
+    private readonly ColorPickerControl _colorPicker;
     private readonly NumericUpDown _sortOrderBox;
 
     public DirectoryItem? ResultItem { get; private set; }
@@ -21,7 +22,7 @@ public class ItemEditorDialog : Form
     {
         _existingItem = item;
         Text = item == null ? "Nuevo Acceso Directo" : "Editar Acceso Directo";
-        Size = new Size(520, 560);
+        Size = new Size(540, 640);
         StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -116,9 +117,14 @@ public class ItemEditorDialog : Form
         _categoryBox = AddTextBox(ref y);
 
         // Color
-        AddLabel("Color (Hex)", ref y);
-        _colorBox = AddTextBox(ref y);
-        _colorBox.Text = "#2563eb";
+        AddLabel("Color del Tablero", ref y);
+        _colorPicker = new ColorPickerControl
+        {
+            Location = new Point(30, y),
+            Width = inputWidth
+        };
+        Controls.Add(_colorPicker);
+        y += 84;
 
         // Sort Order
         AddLabel("Orden", ref y);
@@ -176,7 +182,7 @@ public class ItemEditorDialog : Form
             _pathBox.Text = item.Path;
             _iconBox.SelectedItem = item.IconName;
             _categoryBox.Text = item.Category;
-            _colorBox.Text = item.ColorHex;
+            _colorPicker.SelectedColorHex = item.ColorHex;
             _sortOrderBox.Value = item.SortOrder;
         }
     }
@@ -259,7 +265,7 @@ public class ItemEditorDialog : Form
         ResultItem.Path = _pathBox.Text.Trim();
         ResultItem.IconName = _iconBox.SelectedItem?.ToString() ?? "chart";
         ResultItem.Category = _categoryBox.Text.Trim();
-        ResultItem.ColorHex = _colorBox.Text.Trim();
+        ResultItem.ColorHex = _colorPicker.SelectedColorHex;
         ResultItem.SortOrder = (int)_sortOrderBox.Value;
 
         DialogResult = DialogResult.OK;

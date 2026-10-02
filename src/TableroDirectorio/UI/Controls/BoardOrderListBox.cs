@@ -14,7 +14,7 @@ public class BoardOrderListBox : ListBox
     public BoardOrderListBox()
     {
         DrawMode = DrawMode.OwnerDrawFixed;
-        ItemHeight = 48;
+        ItemHeight = 64;
         AllowDrop = true;
         BorderStyle = BorderStyle.None;
         IntegralHeight = false;
@@ -197,20 +197,26 @@ public class BoardOrderListBox : ListBox
             DarkTheme.TextMuted, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
 
         // Vector Icon
-        var iconRect = new Rectangle(rect.X + 68, rect.Y + (rect.Height - 24) / 2, 24, 24);
+        var iconRect = new Rectangle(rect.X + 66, rect.Y + (rect.Height - 26) / 2, 26, 26);
         var itemColor = DarkTheme.GetCardColor(item.ColorHex);
         IconRenderer.DrawIcon(g, item.IconName, iconRect, itemColor);
 
-        // Title
-        var titleRect = new Rectangle(rect.X + 105, rect.Y + 4, rect.Width - 220, 22);
-        TextRenderer.DrawText(g, item.Title, DarkTheme.CardTitleFont, titleRect,
-            DarkTheme.TextPrimary, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+        // Title (Full multi-line title with generous width)
+        int textX = rect.X + 104;
+        int textWidth = rect.Width - 122;
+        var titleRect = new Rectangle(textX, rect.Y + 6, textWidth, 34);
+        using var titleFont = new Font("Segoe UI", 10.2f, FontStyle.Bold);
+        TextRenderer.DrawText(g, item.Title, titleFont, titleRect,
+            DarkTheme.TextPrimary,
+            TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis);
 
         // Type & Category
         var infoText = $"{item.ResourceType}  •  {item.Category}";
-        var infoRect = new Rectangle(rect.X + 105, rect.Y + 24, rect.Width - 220, 20);
-        TextRenderer.DrawText(g, infoText, DarkTheme.CardBodyFont, infoRect,
-            DarkTheme.TextSecondary, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+        var infoRect = new Rectangle(textX, rect.Y + 41, textWidth, 18);
+        using var infoFont = new Font("Segoe UI", 8.8f, FontStyle.Regular);
+        TextRenderer.DrawText(g, infoText, infoFont, infoRect,
+            DarkTheme.TextSecondary,
+            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
         // Color badge indicator on the right
         var colorBar = DarkTheme.GetCardColor(item.ColorHex);
