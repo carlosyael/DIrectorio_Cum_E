@@ -18,6 +18,9 @@ public class DashboardPanel : UserControl
     private readonly Panel _counterPanel;
     private readonly Panel _searchPanel;
     private readonly ComboBox _themeSelector;
+    private readonly Label _orgLabel;
+    private readonly Label _themeLabel;
+    private readonly Button _configBtn;
 
     public event EventHandler? ConfigRequested;
 
@@ -28,28 +31,38 @@ public class DashboardPanel : UserControl
         AutoScroll = true;
         Padding = new Padding(0, 0, 0, 40);
 
-        // 1. TOP NAVBAR (Theme Selector + Config Button)
+        // 1. TOP NAVBAR
         _topBar = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 52,
+            Height = 50,
             BackColor = Color.Transparent,
             Padding = new Padding(24, 8, 24, 8)
         };
 
-        var orgLabel = new Label
+        _orgLabel = new Label
         {
             Text = "Portal Institucional",
             Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
-            ForeColor = DarkTheme.TextMuted,
             AutoSize = false,
             Width = 200,
             Dock = DockStyle.Left,
             TextAlign = ContentAlignment.MiddleLeft
         };
 
-        var configBtn = CreateBarButton("⚙ Administración");
-        configBtn.Click += (_, _) => ConfigRequested?.Invoke(this, EventArgs.Empty);
+        _configBtn = new Button
+        {
+            Text = "⚙ Administración",
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
+            Height = 32,
+            AutoSize = true,
+            Padding = new Padding(12, 0, 12, 0),
+            Cursor = Cursors.Hand,
+            Margin = new Padding(10, 0, 0, 0)
+        };
+        _configBtn.FlatAppearance.BorderSize = 1;
+        _configBtn.Click += (_, _) => ConfigRequested?.Invoke(this, EventArgs.Empty);
 
         _themeSelector = new ComboBox
         {
@@ -67,11 +80,10 @@ public class DashboardPanel : UserControl
         _themeSelector.SelectedItem = ThemeManager.Current.Name;
         _themeSelector.SelectedIndexChanged += OnThemeChangedByUser;
 
-        var themeLabel = new Label
+        _themeLabel = new Label
         {
             Text = "Tema:",
             Font = new Font("Segoe UI", 9.5f),
-            ForeColor = DarkTheme.TextMuted,
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleRight,
             Margin = new Padding(0, 7, 6, 0)
@@ -85,59 +97,60 @@ public class DashboardPanel : UserControl
             WrapContents = false,
             BackColor = Color.Transparent
         };
-        rightPanel.Controls.Add(themeLabel);
+        rightPanel.Controls.Add(_themeLabel);
         rightPanel.Controls.Add(_themeSelector);
-        rightPanel.Controls.Add(configBtn);
+        rightPanel.Controls.Add(_configBtn);
 
-        _topBar.Controls.Add(orgLabel);
+        _topBar.Controls.Add(_orgLabel);
         _topBar.Controls.Add(rightPanel);
 
-        // 2. HEADER
+        // 2. HEADER PANEL (Ample height to prevent any overlap between title, subtitle, and banner)
         _headerPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 125,
+            Height = 155,
             BackColor = Color.Transparent,
-            Padding = new Padding(20, 15, 20, 10)
+            Padding = new Padding(20, 15, 20, 5)
         };
 
         _titleLabel = new Label
         {
             Text = _presenter.GetTitle(),
-            Font = DarkTheme.TitleFont,
+            Font = new Font("Segoe UI", 24f, FontStyle.Bold),
             AutoSize = false,
             TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Top,
-            Height = 50
+            Height = 44
         };
 
         _subtitleLabel = new Label
         {
             Text = _presenter.GetSubtitle(),
-            Font = DarkTheme.SubtitleFont,
+            Font = new Font("Segoe UI", 12f, FontStyle.Regular),
             AutoSize = false,
             TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Top,
-            Height = 28
+            Height = 26
         };
 
         _bannerPill = new BannerPillControl
         {
             Dock = DockStyle.Top,
-            BannerText = _presenter.GetBanner()
+            BannerText = _presenter.GetBanner(),
+            Height = 40
         };
 
         _headerPanel.Controls.Add(_bannerPill);
         _headerPanel.Controls.Add(_subtitleLabel);
         _headerPanel.Controls.Add(_titleLabel);
 
-        // 3. COUNTER PANEL
+        // 3. COUNTER PANEL (Clean gap and centered card)
         _counterPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 110,
+            Height = 100,
             BackColor = Color.Transparent,
-            Padding = new Padding(0, 8, 0, 8)
+            Padding = new Padding(0, 6, 0, 10)
         };
 
         _counterCard = new CounterCardControl();
@@ -153,11 +166,11 @@ public class DashboardPanel : UserControl
         _searchPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 56,
+            Height = 58,
             BackColor = Color.Transparent
         };
 
-        _searchBox = new SearchBoxControl { Width = 680 };
+        _searchBox = new SearchBoxControl { Width = 640 };
         _searchBox.SearchTextChanged += (_, _) =>
         {
             var items = _presenter.Search(_searchBox.Query).ToList();
@@ -179,10 +192,10 @@ public class DashboardPanel : UserControl
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             WrapContents = true,
             BackColor = Color.Transparent,
-            Padding = new Padding(30, 20, 30, 20)
+            Padding = new Padding(28, 15, 28, 20)
         };
 
-        // Add controls in reverse dock order
+        // Add in reverse dock order
         Controls.Add(_cardsContainer);
         Controls.Add(_searchPanel);
         Controls.Add(_counterPanel);
@@ -205,10 +218,20 @@ public class DashboardPanel : UserControl
     public void ApplyTheme()
     {
         BackColor = DarkTheme.BackgroundMid;
+
+        // Header texts
         _titleLabel.ForeColor = DarkTheme.TextPrimary;
         _subtitleLabel.ForeColor = DarkTheme.TextSecondary;
+
+        // Top bar controls (guaranteed readable in both light and dark themes)
+        _orgLabel.ForeColor = DarkTheme.TextMuted;
+        _themeLabel.ForeColor = DarkTheme.TextMuted;
         _themeSelector.BackColor = DarkTheme.InputBackground;
         _themeSelector.ForeColor = DarkTheme.TextPrimary;
+
+        _configBtn.BackColor = DarkTheme.CardBackground;
+        _configBtn.ForeColor = DarkTheme.TextPrimary;
+        _configBtn.FlatAppearance.BorderColor = DarkTheme.CardBorder;
 
         if (_themeSelector.SelectedItem?.ToString() != ThemeManager.Current.Name)
         {
@@ -248,25 +271,5 @@ public class DashboardPanel : UserControl
 
         _counterCard.Count = items.Count;
         _cardsContainer.ResumeLayout();
-    }
-
-    private static Button CreateBarButton(string text)
-    {
-        var btn = new Button
-        {
-            Text = text,
-            FlatStyle = FlatStyle.Flat,
-            BackColor = Color.Transparent,
-            ForeColor = DarkTheme.TextPrimary,
-            Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
-            Height = 32,
-            AutoSize = true,
-            Padding = new Padding(12, 0, 12, 0),
-            Cursor = Cursors.Hand,
-            Margin = new Padding(10, 0, 0, 0)
-        };
-        btn.FlatAppearance.BorderSize = 1;
-        btn.FlatAppearance.BorderColor = DarkTheme.InputBorder;
-        return btn;
     }
 }

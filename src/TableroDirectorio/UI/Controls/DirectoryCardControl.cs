@@ -20,8 +20,8 @@ public class DirectoryCardControl : UserControl
                  ControlStyles.OptimizedDoubleBuffer |
                  ControlStyles.ResizeRedraw, true);
 
-        Margin = new Padding(14);
-        Size = new Size(330, 390);
+        Margin = new Padding(12);
+        Size = new Size(320, 295);
         Cursor = Cursors.Hand;
 
         MouseEnter += (_, _) => { _isHovered = true; Invalidate(); };
@@ -57,7 +57,7 @@ public class DirectoryCardControl : UserControl
     protected override void OnResize(EventArgs e)
     {
         base.OnResize(e);
-        _buttonRect = new Rectangle(24, Height - 60, Width - 48, 42);
+        _buttonRect = new Rectangle(20, Height - 54, Width - 40, 38);
     }
 
     protected override void OnPaint(PaintEventArgs e)
@@ -70,94 +70,100 @@ public class DirectoryCardControl : UserControl
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
         var rect = new Rectangle(0, 0, Width - 1, Height - 1);
-        const int cardRadius = 18;
-
-        // 1. Card Body with glass/matte tint
-        var bgColor = _isHovered ? DarkTheme.CardHover : DarkTheme.GetCardBackgroundWithTint(_item.ColorHex);
-        using (var path = CreateRoundedRectPath(rect, cardRadius))
-        {
-            using var brush = new SolidBrush(bgColor);
-            g.FillPath(brush, path);
-
-            var borderColor = _isHovered ? DarkTheme.AccentSky : DarkTheme.CardBorder;
-            using var pen = new Pen(borderColor, _isHovered ? 1.5f : 1f);
-            g.DrawPath(pen, path);
-        }
-
-        // 2. Top Accent Line (following top curve)
+        const int cardRadius = 14;
         var stripeColor = DarkTheme.GetCardColor(_item.ColorHex);
-        using (var stripePath = CreateTopStripePath(new Rectangle(0, 0, Width - 1, 6), cardRadius))
+
+        using (var cardPath = CreateRoundedRectPath(rect, cardRadius))
         {
-            using var stripeBrush = new SolidBrush(stripeColor);
-            g.FillPath(stripeBrush, stripePath);
+            // 1. Fill Card Background
+            var bgColor = _isHovered ? DarkTheme.CardHover : DarkTheme.GetCardBackgroundWithTint(_item.ColorHex);
+            using (var brush = new SolidBrush(bgColor))
+            {
+                g.FillPath(brush, cardPath);
+            }
+
+            // 2. Top Color Stripe with perfect clipping to rounded corners (no corner leakage)
+            var oldClip = g.Clip;
+            g.SetClip(cardPath);
+            using (var stripeBrush = new SolidBrush(stripeColor))
+            {
+                g.FillRectangle(stripeBrush, 0, 0, Width, 5);
+            }
+            g.Clip = oldClip;
+
+            // 3. Card Border
+            var borderColor = _isHovered ? stripeColor : DarkTheme.CardBorder;
+            using (var pen = new Pen(borderColor, _isHovered ? 1.5f : 1f))
+            {
+                g.DrawPath(pen, cardPath);
+            }
         }
 
-        // 3. Icon Container & Vector Icon
-        var iconBoxRect = new Rectangle(24, 22, 54, 54);
-        using (var iconBg = new SolidBrush(Color.FromArgb(28, 255, 255, 255)))
+        // 4. Icon Container & Vector Icon
+        var iconBoxRect = new Rectangle(20, 18, 46, 46);
+        using (var iconBg = new SolidBrush(Color.FromArgb(ThemeManager.Current.IsDark ? 28 : 16, stripeColor.R, stripeColor.G, stripeColor.B)))
         {
-            using var iconPath = CreateRoundedRectPath(iconBoxRect, 14);
-            g.FillPath(iconBg, iconPath);
-            using var iconBorder = new Pen(Color.FromArgb(40, stripeColor.R, stripeColor.G, stripeColor.B), 1.2f);
-            g.DrawPath(iconBorder, iconPath);
+            using (var iconPath = CreateRoundedRectPath(iconBoxRect, 10))
+            {
+                g.FillPath(iconBg, iconPath);
+                using var iconPen = new Pen(Color.FromArgb(60, stripeColor.R, stripeColor.G, stripeColor.B), 1f);
+                g.DrawPath(iconPen, iconPath);
+            }
         }
 
         var iconInner = new Rectangle(iconBoxRect.X + 8, iconBoxRect.Y + 8, iconBoxRect.Width - 16, iconBoxRect.Height - 16);
         IconRenderer.DrawIcon(g, _item.IconName, iconInner, stripeColor);
 
-        // 4. Category Tag (top right)
+        // 5. Category (Top Right)
         if (!string.IsNullOrWhiteSpace(_item.Category))
         {
-            var catRect = new Rectangle(Width - 150, 26, 126, 22);
-            TextRenderer.DrawText(g, _item.Category, new Font("Segoe UI", 9.2f, FontStyle.Regular),
+            var catRect = new Rectangle(Width - 140, 22, 120, 20);
+            TextRenderer.DrawText(g, _item.Category, new Font("Segoe UI", 9f, FontStyle.Regular),
                 catRect, DarkTheme.TextMuted, TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
         }
 
-        // 5. Title (with generous vertical bounds)
-        var titleRect = new Rectangle(24, 90, Width - 48, 58);
-        TextRenderer.DrawText(g, _item.Title, DarkTheme.CardTitleFont, titleRect,
+        // 6. Title
+        var titleRect = new Rectangle(20, 74, Width - 40, 48);
+        TextRenderer.DrawText(g, _item.Title, new Font("Segoe UI", 11.5f, FontStyle.Bold), titleRect,
             DarkTheme.TextPrimary,
             TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis);
 
-        // 6. Description (clearly separated)
-        var descRect = new Rectangle(24, 154, Width - 48, 80);
-        TextRenderer.DrawText(g, _item.Description, DarkTheme.CardBodyFont, descRect,
+        // 7. Description
+        var descRect = new Rectangle(20, 126, Width - 40, 50);
+        TextRenderer.DrawText(g, _item.Description, new Font("Segoe UI", 9f, FontStyle.Regular), descRect,
             DarkTheme.TextSecondary,
             TextFormatFlags.WordBreak | TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.EndEllipsis);
 
-        // 7. Technology Badge (Pill style, well above button)
+        // 8. Technology Badge (Pill)
         var badgeText = _item.ResourceType;
-        var badgeSize = TextRenderer.MeasureText(badgeText, new Font("Segoe UI", 8.8f, FontStyle.Bold));
-        int badgeY = Height - 60 - badgeSize.Height - 16;
-        var badgeRect = new Rectangle(24, badgeY, badgeSize.Width + 16, badgeSize.Height + 6);
+        var badgeFont = new Font("Segoe UI", 8.5f, FontStyle.Bold);
+        var badgeSize = TextRenderer.MeasureText(badgeText, badgeFont);
+        int badgeY = Height - 54 - badgeSize.Height - 14;
+        var badgeRect = new Rectangle(20, badgeY, badgeSize.Width + 14, badgeSize.Height + 5);
 
-        using (var badgePath = CreateRoundedRectPath(badgeRect, 6))
+        using (var badgePath = CreateRoundedRectPath(badgeRect, 5))
         {
-            using var badgeBg = new SolidBrush(Color.FromArgb(32, stripeColor.R, stripeColor.G, stripeColor.B));
+            using var badgeBg = new SolidBrush(Color.FromArgb(ThemeManager.Current.IsDark ? 32 : 18, stripeColor.R, stripeColor.G, stripeColor.B));
             g.FillPath(badgeBg, badgePath);
-            using var badgePen = new Pen(Color.FromArgb(90, stripeColor.R, stripeColor.G, stripeColor.B), 1f);
+            using var badgePen = new Pen(Color.FromArgb(80, stripeColor.R, stripeColor.G, stripeColor.B), 1f);
             g.DrawPath(badgePen, badgePath);
         }
-
-        TextRenderer.DrawText(g, badgeText, new Font("Segoe UI", 8.8f, FontStyle.Bold), badgeRect,
+        TextRenderer.DrawText(g, badgeText, badgeFont, badgeRect,
             stripeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
 
-        // 8. Open Button (Modern Rounded with subtle gradient/state)
-        _buttonRect = new Rectangle(24, Height - 58, Width - 48, 42);
-        using (var btnPath = CreateRoundedRectPath(_buttonRect, 10))
+        // 9. Open Button (Modern Rounded Action)
+        _buttonRect = new Rectangle(20, Height - 50, Width - 40, 36);
+        using (var btnPath = CreateRoundedRectPath(_buttonRect, 8))
         {
-            var btnColor = _isButtonHovered
-                ? Color.FromArgb(
-                    Math.Min(255, DarkTheme.AccentBlue.R + 25),
-                    Math.Min(255, DarkTheme.AccentBlue.G + 25),
-                    Math.Min(255, DarkTheme.AccentBlue.B + 25))
+            var btnBg = _isButtonHovered
+                ? Color.FromArgb(Math.Min(255, DarkTheme.AccentBlue.R + 20), Math.Min(255, DarkTheme.AccentBlue.G + 20), Math.Min(255, DarkTheme.AccentBlue.B + 20))
                 : DarkTheme.AccentBlue;
 
-            using var btnBrush = new SolidBrush(btnColor);
+            using var btnBrush = new SolidBrush(btnBg);
             g.FillPath(btnBrush, btnPath);
         }
 
-        TextRenderer.DrawText(g, "Abrir Tablero", DarkTheme.ButtonFont, _buttonRect,
+        TextRenderer.DrawText(g, "Abrir Tablero", new Font("Segoe UI", 9.5f, FontStyle.Bold), _buttonRect,
             Color.White, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
     }
 
@@ -169,17 +175,6 @@ public class DirectoryCardControl : UserControl
         path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
         path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
         path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
-        path.CloseFigure();
-        return path;
-    }
-
-    private static GraphicsPath CreateTopStripePath(Rectangle rect, int radius)
-    {
-        var path = new GraphicsPath();
-        int d = radius * 2;
-        path.AddArc(rect.X, rect.Y, d, d, 180, 90);
-        path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
-        path.AddLine(rect.Right, rect.Bottom, rect.X, rect.Bottom);
         path.CloseFigure();
         return path;
     }

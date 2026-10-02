@@ -14,7 +14,7 @@ public class BannerPillControl : UserControl
                  ControlStyles.OptimizedDoubleBuffer |
                  ControlStyles.ResizeRedraw, true);
 
-        Height = 40;
+        Height = 36;
         BackColor = Color.Transparent;
         ThemeManager.ThemeChanged += Invalidate;
     }
@@ -39,22 +39,31 @@ public class BannerPillControl : UserControl
         g.SmoothingMode = SmoothingMode.AntiAlias;
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-        var font = new Font("Segoe UI", 10.5f, FontStyle.Regular);
+        var font = new Font("Segoe UI", 9.5f, FontStyle.Regular);
         var size = TextRenderer.MeasureText(_bannerText, font);
-        int pillW = size.Width + 40;
-        int pillH = Height - 6;
+        int pillW = size.Width + 36;
+        int pillH = 30;
         int pillX = (Width - pillW) / 2;
-        int pillY = 3;
+        int pillY = (Height - pillH) / 2;
 
         var rect = new Rectangle(pillX, pillY, pillW, pillH);
         int radius = pillH / 2;
 
         using (var path = CreatePillPath(rect, radius))
         {
-            using var bg = new SolidBrush(Color.FromArgb(20, DarkTheme.TextPrimary.R, DarkTheme.TextPrimary.G, DarkTheme.TextPrimary.B));
+            var isDark = ThemeManager.Current.IsDark;
+            var bgColor = isDark
+                ? Color.FromArgb(25, 255, 255, 255)
+                : Color.FromArgb(240, 244, 248);
+
+            using var bg = new SolidBrush(bgColor);
             g.FillPath(bg, path);
 
-            using var pen = new Pen(Color.FromArgb(35, DarkTheme.TextPrimary.R, DarkTheme.TextPrimary.G, DarkTheme.TextPrimary.B), 1f);
+            var borderColor = isDark
+                ? Color.FromArgb(45, 255, 255, 255)
+                : Color.FromArgb(210, 220, 230);
+
+            using var pen = new Pen(borderColor, 1f);
             g.DrawPath(pen, path);
         }
 

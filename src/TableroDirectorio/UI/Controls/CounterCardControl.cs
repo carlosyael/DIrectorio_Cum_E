@@ -14,7 +14,7 @@ public class CounterCardControl : UserControl
                  ControlStyles.OptimizedDoubleBuffer |
                  ControlStyles.ResizeRedraw, true);
 
-        Size = new Size(220, 96);
+        Size = new Size(210, 84);
         BackColor = Color.Transparent;
         ThemeManager.ThemeChanged += Invalidate;
     }
@@ -38,25 +38,34 @@ public class CounterCardControl : UserControl
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
         var rect = new Rectangle(0, 0, Width - 1, Height - 1);
-        const int radius = 18;
+        const int radius = 14;
 
         using (var path = CreateRoundedRect(rect, radius))
         {
-            using var bgBrush = new SolidBrush(Color.FromArgb(32, DarkTheme.TextPrimary.R, DarkTheme.TextPrimary.G, DarkTheme.TextPrimary.B));
+            var isDark = ThemeManager.Current.IsDark;
+            var bgColor = isDark
+                ? Color.FromArgb(28, 38, 54)
+                : Color.White;
+
+            using var bgBrush = new SolidBrush(bgColor);
             g.FillPath(bgBrush, path);
 
-            using var pen = new Pen(Color.FromArgb(45, DarkTheme.TextPrimary.R, DarkTheme.TextPrimary.G, DarkTheme.TextPrimary.B), 1.2f);
+            var borderColor = isDark
+                ? Color.FromArgb(60, 75, 100)
+                : Color.FromArgb(226, 232, 240);
+
+            using var pen = new Pen(borderColor, 1.2f);
             g.DrawPath(pen, path);
         }
 
         // Count Number
-        var numRect = new Rectangle(0, 10, Width, 46);
-        TextRenderer.DrawText(g, _count.ToString(), new Font("Segoe UI", 30f, FontStyle.Bold),
-            numRect, DarkTheme.AccentSky, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        var numRect = new Rectangle(0, 8, Width, 42);
+        TextRenderer.DrawText(g, _count.ToString(), new Font("Segoe UI", 26f, FontStyle.Bold),
+            numRect, DarkTheme.AccentBlue, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
 
         // Subtitle Text
-        var textRect = new Rectangle(0, 56, Width, 30);
-        TextRenderer.DrawText(g, "Tableros Disponibles", new Font("Segoe UI", 9.5f, FontStyle.Regular),
+        var textRect = new Rectangle(0, 50, Width, 24);
+        TextRenderer.DrawText(g, "Tableros Disponibles", new Font("Segoe UI", 9f, FontStyle.Regular),
             textRect, DarkTheme.TextMuted, TextFormatFlags.HorizontalCenter | TextFormatFlags.Top);
     }
 

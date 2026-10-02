@@ -9,8 +9,8 @@ public class PasswordDialog : Form
 
     public PasswordDialog()
     {
-        Text = "Autenticación de Administrador";
-        Size = new Size(400, 200);
+        Text = "Acceso Administrativo";
+        Size = new Size(490, 240);
         StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -18,20 +18,31 @@ public class PasswordDialog : Form
         BackColor = DarkTheme.BackgroundMid;
         ForeColor = DarkTheme.TextPrimary;
 
-        var label = new Label
+        var headerLabel = new Label
         {
-            Text = "Ingrese la contraseña de administración:",
-            Font = DarkTheme.CardTitleFont,
+            Text = "Autenticación de Administrador",
+            Font = new Font("Segoe UI", 12f, FontStyle.Bold),
             ForeColor = DarkTheme.TextPrimary,
-            AutoSize = true,
-            Location = new Point(30, 25)
+            Location = new Point(32, 22),
+            Size = new Size(420, 26),
+            TextAlign = ContentAlignment.MiddleLeft
+        };
+
+        var subtitleLabel = new Label
+        {
+            Text = "Ingrese la contraseña maestra para gestionar los tableros:",
+            Font = new Font("Segoe UI", 9.5f, FontStyle.Regular),
+            ForeColor = DarkTheme.TextSecondary,
+            Location = new Point(32, 50),
+            Size = new Size(420, 22),
+            TextAlign = ContentAlignment.MiddleLeft
         };
 
         _passwordBox = new TextBox
         {
-            Location = new Point(30, 60),
-            Size = new Size(320, 35),
-            Font = DarkTheme.SearchFont,
+            Location = new Point(32, 82),
+            Size = new Size(410, 32),
+            Font = new Font("Segoe UI", 11.5f),
             BackColor = DarkTheme.InputBackground,
             ForeColor = DarkTheme.TextPrimary,
             UseSystemPasswordChar = true,
@@ -42,8 +53,8 @@ public class PasswordDialog : Form
         {
             Text = "Acceder",
             DialogResult = DialogResult.OK,
-            Location = new Point(30, 105),
-            Size = new Size(155, 38),
+            Location = new Point(170, 134),
+            Size = new Size(130, 36),
             FlatStyle = FlatStyle.Flat,
             BackColor = DarkTheme.AccentBlue,
             ForeColor = Color.White,
@@ -56,19 +67,20 @@ public class PasswordDialog : Form
         {
             Text = "Cancelar",
             DialogResult = DialogResult.Cancel,
-            Location = new Point(195, 105),
-            Size = new Size(155, 38),
+            Location = new Point(312, 134),
+            Size = new Size(130, 36),
             FlatStyle = FlatStyle.Flat,
-            BackColor = DarkTheme.BackgroundLight,
-            ForeColor = DarkTheme.TextMuted,
+            BackColor = DarkTheme.CardBackground,
+            ForeColor = DarkTheme.TextPrimary,
             Font = DarkTheme.ButtonFont,
             Cursor = Cursors.Hand
         };
-        cancelButton.FlatAppearance.BorderSize = 0;
+        cancelButton.FlatAppearance.BorderSize = 1;
+        cancelButton.FlatAppearance.BorderColor = DarkTheme.CardBorder;
 
         AcceptButton = okButton;
         CancelButton = cancelButton;
 
-        Controls.AddRange(new Control[] { label, _passwordBox, okButton, cancelButton });
+        Controls.AddRange(new Control[] { headerLabel, subtitleLabel, _passwordBox, okButton, cancelButton });
     }
 }

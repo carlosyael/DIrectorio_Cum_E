@@ -30,29 +30,25 @@ public class ThemeDefinition
 
     public Color GetCardBackgroundWithTint(string colorHex)
     {
-        Color tint;
-        try
-        {
-            tint = ColorTranslator.FromHtml(colorHex);
-        }
-        catch
-        {
-            tint = AccentPrimary;
-        }
-
         if (IsDark)
         {
+            Color tint;
+            try
+            {
+                tint = ColorTranslator.FromHtml(colorHex);
+            }
+            catch
+            {
+                tint = AccentPrimary;
+            }
+
             return Color.FromArgb(
-                (int)(tint.R * 0.15 + BackgroundLight.R * 0.85),
-                (int)(tint.G * 0.15 + BackgroundLight.G * 0.85),
-                (int)(tint.B * 0.15 + BackgroundLight.B * 0.85));
+                (int)(tint.R * 0.08 + BackgroundLight.R * 0.92),
+                (int)(tint.G * 0.08 + BackgroundLight.G * 0.92),
+                (int)(tint.B * 0.08 + BackgroundLight.B * 0.92));
         }
-        else
-        {
-            return Color.FromArgb(
-                (int)(tint.R * 0.08 + CardBackground.R * 0.92),
-                (int)(tint.G * 0.08 + CardBackground.G * 0.92),
-                (int)(tint.B * 0.08 + CardBackground.B * 0.92));
-        }
+
+        // In light themes, cards stay clean solid white for professional corporate look
+        return CardBackground;
     }
 }
