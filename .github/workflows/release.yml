@@ -1,0 +1,71 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore src/TableroDirectorio/TableroDirectorio.csproj
+
+    - name: Build
+      run: dotnet build src/TableroDirectorio/TableroDirectorio.csproj -c Release --no-restore
+
+    - name: Publish Portable (Single-File)
+      run: |
+        dotnet publish src/TableroDirectorio/TableroDirectorio.csproj `
+          -c Release `
+          -r win-x64 `
+          --self-contained `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:EnableCompressionInSingleFile=true `
+          -o publish/portable
+
+    - name: Create Release Archive
+      run: Compress-Archive -Path publish/portable/* -DestinationPath TableroDirectorio-${{ github.ref_name }}-win-x64-portable.zip
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: "Tablero Directorio ${{ github.ref_name }}"
+        body: |
+          ## 🛡️ Tablero Directorio Portable ${{ github.ref_name }}
+          
+          **Gerencia de Cumplimiento Ético** — Directorio de Tableros e Informaciones
+          
+          ### 📦 Instrucciones de Uso
+          1. Descarga el archivo `.zip`
+          2. Extrae en cualquier ubicación (USB, carpeta de red, escritorio)
+          3. Ejecuta `TableroDirectorio.exe`
+          
+          ### 🔑 Contraseña Maestra por Defecto
+          - **Contraseña:** `admin123`
+          - ⚠️ Cámbiala en ⚙️ Configuración tras el primer acceso
+          
+          ### ✨ Características
+          - Dashboard con tarjetas para acceso rápido a tableros Power BI, Excel y páginas web
+          - Búsqueda en tiempo real
+          - CRUD completo de accesos directos
+          - Configuración protegida por contraseña
+          - Base de datos SQLite portable (archivo `tablero.db`)
+          - No requiere instalación
+        files: TableroDirectorio-${{ github.ref_name }}-win-x64-portable.zip
+        draft: false
+        prerelease: false
