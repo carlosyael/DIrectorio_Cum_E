@@ -1,0 +1,617 @@
+<html lang="es"><head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dirección de Cumplimiento Ético</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Segoe UI',sans-serif;
+    min-height:100vh;
+    color:white;
+    overflow-x:hidden;
+
+    background:
+    linear-gradient(
+    135deg,
+    #020617,
+    #0f172a,
+    #1e293b
+    );
+}
+
+/* FONDO ANIMADO */
+
+.bg-animation{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+}
+
+.bg-animation span{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(120px);
+    animation:flotar 15s infinite alternate;
+}
+
+.bg-animation span:nth-child(1){
+    width:400px;
+    height:400px;
+    background:#2563eb;
+    top:-100px;
+    left:-100px;
+}
+
+.bg-animation span:nth-child(2){
+    width:350px;
+    height:350px;
+    background:#0ea5e9;
+    right:-120px;
+    bottom:-120px;
+}
+
+.bg-animation span:nth-child(3){
+    width:300px;
+    height:300px;
+    background:#7c3aed;
+    top:30%;
+    left:50%;
+}
+
+.bg-animation span:nth-child(4){
+    width:250px;
+    height:250px;
+    background:#10b981;
+    right:20%;
+    top:15%;
+}
+
+@keyframes flotar{
+    from{
+        transform:translate(0,0);
+    }
+    to{
+        transform:translate(60px,-60px);
+    }
+}
+
+/* HEADER */
+
+.header{
+    text-align:center;
+    padding:60px 20px 20px;
+}
+
+.header h1{
+    font-size:60px;
+    font-weight:700;
+}
+
+.header i{
+    color:#38bdf8;
+    margin-right:12px;
+}
+
+.header p{
+    margin-top:15px;
+    color:#dbeafe;
+    font-size:22px;
+}
+
+/* BANNER */
+
+.banner{
+
+    width:max-content;
+
+    margin:auto;
+
+    margin-top:25px;
+
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(15px);
+
+    padding:14px 24px;
+
+    border-radius:50px;
+
+    border:1px solid rgba(255,255,255,.1);
+
+    color:#dbeafe;
+}
+
+/* CONTADOR */
+
+.dashboard-counter{
+    display:flex;
+    justify-content:center;
+    margin:35px 0;
+}
+
+.counter-card{
+
+    width:220px;
+
+    text-align:center;
+
+    padding:25px;
+
+    border-radius:25px;
+
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(15px);
+
+    border:1px solid rgba(255,255,255,.15);
+
+    box-shadow:0 10px 25px rgba(0,0,0,.25);
+}
+
+.counter-card h2{
+    color:#38bdf8;
+    font-size:48px;
+}
+
+.counter-card span{
+    color:#cbd5e1;
+}
+
+/* CONTENEDOR */
+
+.container{
+    max-width:1500px;
+    margin:auto;
+    padding:20px;
+}
+
+/* BUSCADOR */
+
+#buscar{
+
+    width:100%;
+
+    padding:18px 22px;
+
+    border:none;
+
+    border-radius:15px;
+
+    font-size:16px;
+
+    outline:none;
+
+    box-shadow:0 5px 25px rgba(0,0,0,.3);
+}
+
+/* GRID */
+
+.grid{
+    margin-top:30px;
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(330px,1fr));
+
+    gap:30px;
+}
+
+/* TARJETAS */
+
+.card{
+
+    position:relative;
+
+    overflow:hidden;
+
+    display:flex;
+
+    flex-direction:column;
+
+    min-height:430px;
+
+    padding:30px;
+
+    border-radius:25px;
+
+    backdrop-filter:blur(20px);
+
+    border:1px solid rgba(255,255,255,.15);
+
+    transition:.4s;
+
+    animation:entrar .7s ease;
+}
+
+.card:nth-child(1){
+    background:
+    linear-gradient(
+    135deg,
+    rgba(59,130,246,.25),
+    rgba(30,41,59,.9));
+}
+
+.card:nth-child(2){
+    background:
+    linear-gradient(
+    135deg,
+    rgba(239,68,68,.22),
+    rgba(30,41,59,.9));
+}
+
+.card:nth-child(3){
+    background:
+    linear-gradient(
+    135deg,
+    rgba(16,185,129,.22),
+    rgba(30,41,59,.9));
+}
+
+.card:nth-child(4){
+    background:
+    linear-gradient(
+    135deg,
+    rgba(245,158,11,.22),
+    rgba(30,41,59,.9));
+}
+
+.card::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:6px;
+
+    background:white;
+}
+
+.card:hover{
+
+    transform:
+    translateY(-12px)
+    scale(1.02);
+
+    box-shadow:
+    0 20px 50px rgba(0,0,0,.4);
+}
+
+.icon{
+
+    width:72px;
+    height:72px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:20px;
+
+    background:rgba(255,255,255,.08);
+
+    margin-bottom:20px;
+
+    position:relative;
+
+    overflow:hidden;
+}
+
+.icon::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:-120%;
+
+    width:100%;
+    height:100%;
+
+    background:
+    linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.45),
+    transparent);
+
+    animation:shine 4s infinite;
+}
+
+.icon i{
+    font-size:32px;
+}
+
+@keyframes shine{
+
+    100%{
+        left:150%;
+    }
+}
+
+.card h3{
+
+    font-size:18px;
+
+    line-height:1.5;
+
+    margin-bottom:15px;
+
+    min-height:80px;
+}
+
+.card p{
+
+    color:#dbeafe;
+
+    line-height:1.8;
+
+    flex-grow:1;
+}
+
+/* BOTÓN */
+
+.btn{
+
+    display:block;
+
+    width:100%;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    margin-top:auto;
+
+    padding:15px;
+
+    border-radius:12px;
+
+    font-weight:700;
+
+    color:white;
+
+    background:
+    linear-gradient(
+    135deg,
+    #38bdf8,
+    #2563eb);
+
+    position:relative;
+
+    overflow:hidden;
+
+    transition:.4s;
+}
+
+.btn::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:-100%;
+
+    width:100%;
+    height:100%;
+
+    background:
+    linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.6),
+    transparent);
+}
+
+.btn:hover::before{
+    left:100%;
+    transition:1s;
+}
+
+.btn:hover{
+    transform:scale(1.03);
+}
+
+/* FOOTER */
+
+.footer{
+
+    margin-top:60px;
+
+    padding:30px;
+
+    text-align:center;
+
+    color:#cbd5e1;
+}
+
+/* BÚSQUEDA */
+
+.oculto{
+    display:none !important;
+}
+
+@keyframes entrar{
+
+    from{
+        opacity:0;
+        transform:translateY(40px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@media(max-width:768px){
+
+    .header h1{
+        font-size:36px;
+    }
+
+    .banner{
+        width:90%;
+        text-align:center;
+    }
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="bg-animation">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<div class="header">
+
+    <h1>
+        <i class="fa-solid fa-shield-halved"></i>
+       Gerencia de Cumplimiento Ético
+    </h1>
+
+    <p>
+        Directorio de Tableros e Informaciones
+    </p>
+
+</div>
+
+<div class="banner">
+🛡️ Centro de Analítica y Gestión de Riesgos
+</div>
+
+<div class="dashboard-counter">
+
+    <div class="counter-card">
+        <h2>4</h2>
+        <span>Tableros Disponibles</span>
+    </div>
+
+</div>
+
+<div class="container">
+
+<input type="text" id="buscar" placeholder="🔍 Buscar tablero...">
+
+<div class="grid">
+
+    <div class="card">
+        <div class="icon">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+
+        <h3>Indicadores de Ejecución Cumplimiento Ético</h3>
+
+        <p>
+            Seguimiento de indicadores operativos y estratégicos.
+        </p>
+
+        <a class="btn" href="file:///T:/GDCEAA/1.2%20Revisión%20Ética/1.2.5%20Estadísticas%20DCEAA/Indicadores%20de%20Ejecución%20Cumplimiento%20Ético%202026.pbix">
+            Abrir Tablero
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+        <h3>Matriz de Riesgo de Colaboradores</h3>
+
+        <p>
+            Evaluación y monitoreo de riesgos asociados a colaboradores.
+        </p>
+
+        <a class="btn" href="file:///T:/GDCEAA/1.2%20Revisión%20Ética/1.2.18%20Laboratorio%20de%20Datos/1.2.18.14%20Reestrcturado%20Power%20Bi/Tablero%20Matriz/1.2.18.03%20Matriz%20de%20riesgo%20de%20empleados/Matriz%20de%20Riesgo%20Colaboradores%20-%20Working2.pbix">
+            Abrir Tablero
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="icon">
+            <i class="fa-solid fa-calendar-days"></i>
+        </div>
+
+        <h3>Dashboard de Planificación de Actividades</h3>
+
+        <p>
+            Seguimiento de actividades y cumplimiento de planes.
+        </p>
+
+        <a class="btn" href="file:///T:/GDCEAA/1.2%20Revisión%20Ética/1.2.18%20Laboratorio%20de%20Datos/1.2.18.06%20Dashboard%20Planificación%20de%20Actividades/Dashboard%20de%20Planificacion%20de%20Actividades.pbix">
+            Abrir Tablero
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="icon">
+            <i class="fa-solid fa-magnifying-glass-chart"></i>
+        </div>
+
+        <h3>Evaluación Transaccional</h3>
+
+        <p>
+            Análisis transaccional y monitoreo de colaboradores.
+        </p>
+
+        <a class="btn" href="file:///T:/GDCEAA/1.2%20Revisión%20Ética/1.2.15%20Evaluación%20de%20Riesgo/Evaluación%20transaccional%20-%20Nombre%20del%20colaborador%20202606.pbix">
+            Abrir Tablero
+        </a>
+    </div>
+
+</div>
+
+</div>
+
+<div class="footer">
+Dirección de Cumplimiento Ético © 2026
+</div>
+
+<script>
+
+const buscar = document.getElementById('buscar');
+
+buscar.addEventListener('input', function () {
+
+    const filtro = this.value.toLowerCase();
+
+    document.querySelectorAll('.card').forEach(card => {
+
+        const texto = card.innerText.toLowerCase();
+
+        if (texto.includes(filtro)) {
+            card.classList.remove('oculto');
+        } else {
+            card.classList.add('oculto');
+        }
+
+    });
+
+});
+
+</script>
+
+
+</body></html>
